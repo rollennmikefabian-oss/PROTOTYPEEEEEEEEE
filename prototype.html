@@ -1,0 +1,3321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Region 3 Map</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      font-family: "Courier New", Courier, monospace;
+    }
+
+    body {
+      background: radial-gradient(
+        circle at center,
+        #bfbfbf 0%,
+        #9e9e9e 30%,
+        #7a7a7a 80%,
+        #4f4f4f 100%
+      );
+      overflow-y: auto;
+    }
+
+    .header {
+      position: absolute;
+      top: 20px;
+      left: -20px;
+
+      display: flex;
+      align-items: center;
+      gap: 15px;
+
+      z-index: 20;
+    }
+
+    .container {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* LEFT PANEL */
+    .left-panel {
+      width: clamp(290px, 35%, 540px);
+      padding: clamp(15px, 2vw, 25px);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.39);
+      backdrop-filter: blur(5px);
+      overflow: hidden;
+      margin-top: clamp(140px, 14vw, 190px);
+      z-index: 1;
+
+      font-size: clamp(16px, 1.5vw, 23px);
+      font-weight: 700;
+      line-height: 1.7;
+      text-align: justify;
+      color: #111;
+    }
+
+    /* RIGHT SIDE */
+    .main {
+      flex: 1;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* LOGOS SA ITAAS */
+    .logos {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+
+      gap: 30px;
+      width: 95%;
+    }
+
+    .logos img {
+      width: clamp(90px, 8vw, 320px);
+      height: auto;
+      object-fit: contain;
+    }
+
+    /* TITLE - IBINABA */
+    .brand-header {
+      position: absolute;
+      top: 60px;
+      left: 10px; /* sagad na */
+
+      display: flex;
+      align-items: center;
+      gap: clamp(8px, 1.5vw, 16px);
+
+      padding-left: 20px; /* maliit na allowance lang */
+      z-index: 50;
+    }
+
+    .main-logo {
+      width: clamp(80px, 7vw, 180px);
+      height: auto;
+      display: block;
+    }
+
+    .title {
+      position: static;
+      text-align: left;
+      color: #111;
+      font-weight: bold;
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: clamp(32px, 4vw, 58px);
+      line-height: 1;
+    }
+
+    .title span {
+      display: block;
+      margin-top: 6px;
+      font-size: clamp(15px, 1.3vw, 24px);
+      line-height: 1.2;
+    }
+
+    /* MAP */
+    .map-container {
+      position: relative;
+      width: min(100%, 1150px);
+      margin-top: 200px;
+      margin-left: 21px;
+    }
+
+    .map {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+
+    /* PINS */
+    .pin img {
+      width: clamp(16px, 2vw, 30px);
+      height: auto;
+      display: block;
+    }
+
+    .pin {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      cursor: pointer;
+      z-index: 20;
+    }
+
+    .label {
+      position: absolute;
+      font-size: clamp(13px, 1.5vw, 40px);
+      font-weight: bold;
+      transform: translate(-50%, 0);
+      transition: 0.2s ease;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      z-index: 21;
+    }
+    
+    .label.active {
+      transform: translate(-50%, -3px) scale(1.1);
+    }
+
+    /* POSITIONS */
+    .aurora {
+      top: 37%;
+      left: 65.5%;
+    }
+    .aurora-label {
+      top: 37.5%;
+      left: 65.5%;
+    }
+
+    .bataan {
+      top: 83.5%;
+      left: 27%;
+    }
+    .bataan-label {
+      top: 84%;
+      left: 27%;
+    }
+
+    .bulacan {
+      top: 66.5%;
+      left: 51%;
+    }
+    .bulacan-label {
+      top: 67%;
+      left: 51%;
+    }
+    .nueva {
+      top: 41.5%; 
+      left: 49%; 
+    }
+    .nueva-label {
+      top: 42%; 
+      left: 49.5%; 
+    }
+    .pampanga {
+        top: 62.5%;
+        left: 33.5%; 
+    }
+    .pampanga-label {
+        top: 63%; 
+        left: 33.5%; 
+    }
+    .tarlac {
+        top: 46%; 
+        left: 27%; 
+    }
+    .tarlac-label{ 
+        top: 46.5%; 
+        left: 27%; 
+      }
+    .zambales {
+        top: 58.5%; 
+        left: 16%; 
+      }
+    .zambales-label {
+        top: 59%; 
+        left: 16%; 
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+
+      .modal.show {
+        display: flex;
+      }
+
+      .modal-box {
+        position: relative;
+        width: min(1600px, 96vw);
+        height: 95vh;
+        background: #f5f5f5;
+        border-radius: 20px;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+        gap: 20px;
+        align-items: stretch;
+        overflow: hidden;
+      }
+
+      .modal-left {
+        background: #eaeaea;
+        border-radius: 16px;
+        padding: 12px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 0;
+      }
+
+      .modal-right {
+        display: block;
+        height: 100%;
+        min-height: 0;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        padding-right: 8px;
+      }
+      
+
+      .modal-right::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .modal-right::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.35);
+        border-radius: 10px;
+      }
+
+      .modal-right::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .modal-right::-webkit-scrollbar-thumb:hover {
+        background: rgba(0,0,0,0.5);
+      }
+
+      .province-map {
+        width: min(100%, 750px);
+        height: auto;
+        max-height: calc(85vh - 60px);
+        display: block;
+        object-fit: contain;
+        user-select: none;
+        pointer-events: none;
+      }
+
+      .map-wrapper {
+        position: relative;
+        width: fit-content;
+        margin: 0 auto;
+      }
+
+      .municipality-layer {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+      }
+
+      .municipality-layer.show {
+        display: block;
+      }
+
+      .modal-right h2 {
+        margin: 0 0 12px 0;
+        font-size: clamp(22px, 2vw, 34px);
+      }
+
+      .modal-right p {
+        margin: 0;
+        font-size: clamp(14px, 1.1vw, 20px);
+        line-height: 1.7;
+        text-align: justify;
+      }
+
+      .close-btn {
+         position: absolute;
+          top: 12px;
+          right: 12px;
+
+          width: 42px;
+          height: 42px;
+          border: none;
+          border-radius: 50%;
+
+          background: rgba(0, 0, 0, 0.65);
+          color: white;
+          font-size: 24px;
+          font-weight: bold;
+          line-height: 1;
+
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          cursor: pointer;
+          z-index: 999;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+
+          transition: background 0.2s ease, transform 0.2s ease;
+      }
+
+      .close-btn:hover {
+        background: #d62828;
+        transform: scale(1.08);
+      }
+
+      #backToProvinceBtn {
+        margin-bottom: 14px;
+        padding: 8px 14px;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        background: #e0e0e0;
+      }
+
+      .card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transition: 0.2s ease;
+      }
+
+      .card h3 {
+        margin: 0 0 8px 0;
+        font-size: 18px;
+      }
+
+      .card p {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+      }
+
+      /* ================= GLOBAL ================= */
+      .province-logo {
+        cursor: pointer;
+        transition: transform 0.2s ease, filter 0.2s ease;
+      }
+
+      .province-logo:hover {
+        transform: scale(1.08);
+      }
+
+      .pin {
+        position: absolute;
+        transform: translate(-50%, -100%);
+        transition: transform 0.2s ease, filter 0.2s ease;
+      }
+
+      .pin.active {
+        transform: translate(-50%, -105%) scale(1.15);
+      }
+
+      /* ================= AURORA ================= */
+      .aurora-logo:hover,
+      .aurora-overlay.active,
+      .aurora:hover img {
+        filter:
+          drop-shadow(0 0 2px rgb(41, 179, 243))
+          drop-shadow(0 0 6px rgba(41, 179, 243, 0.9))
+          drop-shadow(0 0 10px rgba(41, 179, 243, 0.65));
+      }
+
+      .aurora-label {
+        color: rgb(41, 179, 243);
+        text-shadow:
+          0 0 4px rgba(41, 179, 243, 0.9),
+          0 0 8px rgba(41, 179, 243, 0.6);
+      }
+
+
+      /* ================= BATAAN ================= */
+      .bataan-logo:hover,
+      .bataan-overlay.active,
+      .bataan:hover img {
+        filter:
+          drop-shadow(0 0 2px rgb(198, 40, 40))
+          drop-shadow(0 0 6px rgba(198, 40, 40, 0.9))
+          drop-shadow(0 0 10px rgba(198, 40, 40, 0.65));
+      }
+
+      .bataan-label {
+        color: rgb(198, 40, 40);
+        text-shadow:
+          0 0 4px rgba(198, 40, 40, 0.9),
+          0 0 8px rgba(198, 40, 40, 0.6);
+      }
+
+
+      /* ================= BULACAN ================= */
+      .bulacan-logo:hover,
+      .bulacan-overlay.active,
+      .bulacan:hover img {
+        filter:
+          drop-shadow(0 0 2px rgb(250, 184, 17))
+          drop-shadow(0 0 6px rgba(250, 184, 17, 0.9))
+          drop-shadow(0 0 10px rgba(250, 184, 17, 0.65));
+      }
+
+      .bulacan-label {
+        color: rgb(251, 192, 45);
+        text-shadow:
+          0 0 4px rgba(250, 184, 17, 0.9),
+          0 0 8px rgba(250, 184, 17, 0.6);
+      }
+
+
+      /* ================= NUEVA ECIJA ================= */
+      .nueva-logo:hover,
+      .nueva-overlay.active,
+      .nueva:hover img {
+        filter:
+          drop-shadow(0 0 2px rgb(56, 142, 60))
+          drop-shadow(0 0 6px rgba(56, 142, 60, 0.9))
+          drop-shadow(0 0 10px rgba(56, 142, 60, 0.65));
+      }
+
+      .nueva-label {
+        color: rgb(56, 142, 60);
+        text-shadow:
+          0 0 4px rgba(56, 142, 60, 0.9),
+          0 0 8px rgba(56, 142, 60, 0.6);
+      }
+
+
+      /* ================= PAMPANGA ================= */
+      .pampanga-logo:hover,
+      .pampanga-overlay.active,
+      .pampanga:hover img {
+        filter:
+          drop-shadow(0 0 2px rgb(142, 36, 170))
+          drop-shadow(0 0 6px rgba(142, 36, 170, 0.9))
+          drop-shadow(0 0 10px rgba(142, 36, 170, 0.65));
+      }
+
+      .pampanga-label {
+        color: rgb(142, 36, 170);
+        text-shadow:
+          0 0 4px rgba(142, 36, 170, 0.9),
+          0 0 8px rgba(142, 36, 170, 0.6);
+      }
+
+
+      /* ================= TARLAC ================= */
+      .tarlac-logo:hover,
+      .tarlac-overlay.active,
+      .tarlac:hover img {
+        filter:
+          drop-shadow(0 0 2px rgb(251, 140, 0))
+          drop-shadow(0 0 6px rgba(251, 140, 0, 0.9))
+          drop-shadow(0 0 10px rgba(251, 140, 0, 0.65));
+      }
+
+      .tarlac-label {
+        color: rgb(251, 140, 0);
+        text-shadow:
+          0 0 4px rgba(251, 140, 0, 0.9),
+          0 0 8px rgba(251, 140, 0, 0.6);
+      }
+
+
+      /* ================= ZAMBALES ================= */
+      .zambales-logo:hover,
+      .zambales-overlay.active,
+      .zambales:hover img {
+        filter:
+          drop-shadow(0 0 2px rgb(0, 137, 123))
+          drop-shadow(0 0 6px rgba(0, 137, 123, 0.9))
+          drop-shadow(0 0 10px rgba(0, 137, 123, 0.65));
+      }
+
+      .zambales-label {
+        color: rgb(0, 137, 123);
+        text-shadow:
+          0 0 4px rgba(0, 137, 123, 0.9),
+          0 0 8px rgba(0, 137, 123, 0.6);
+      }
+
+      /* ================= AURORA ================= */
+      .aurora-label.active {
+        color: rgb(41, 179, 243);
+        text-shadow:
+          0 0 4px rgba(41, 179, 243, 0.9),
+          0 0 10px rgba(41, 179, 243, 0.7);
+      }
+
+      /* ================= BATAAN ================= */
+      .bataan-label.active {
+        color: rgb(198, 40, 40);
+        text-shadow:
+          0 0 4px rgba(198, 40, 40, 0.9),
+          0 0 10px rgba(198, 40, 40, 0.7);
+      }
+
+      /* ================= BULACAN ================= */
+      .bulacan-label.active {
+        color: rgb(250, 184, 17);
+        text-shadow:
+          0 0 4px rgba(250, 184, 17, 0.9),
+          0 0 10px rgba(250, 184, 17, 0.7);
+      }
+
+      /* ================= NUEVA ECIJA ================= */
+      .nueva-label.active {
+        color: rgb(56, 142, 60);
+        text-shadow:
+          0 0 4px rgba(56, 142, 60, 0.9),
+          0 0 10px rgba(56, 142, 60, 0.7);
+      }
+
+      /* ================= PAMPANGA ================= */
+      .pampanga-label.active {
+        color: rgb(142, 36, 170);
+        text-shadow:
+          0 0 4px rgba(142, 36, 170, 0.9),
+          0 0 10px rgba(142, 36, 170, 0.7);
+      }
+
+      /* ================= TARLAC ================= */
+      .tarlac-label.active {
+        color: rgb(251, 140, 0);
+        text-shadow:
+          0 0 4px rgba(251, 140, 0, 0.9),
+          0 0 10px rgba(251, 140, 0, 0.7);
+      }
+
+      /* ================= ZAMBALES ================= */
+      .zambales-label.active {
+        color: rgb(0, 137, 123);
+        text-shadow:
+          0 0 4px rgba(0, 137, 123, 0.9),
+          0 0 10px rgba(0, 137, 123, 0.7);
+      }
+
+      .province-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: auto;
+        opacity: 0;
+        pointer-events: none;
+        transform: scale(1);
+        transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+      }
+
+      .province-overlay.active {
+        opacity: 1;
+        transform: scale(1.02);
+      }
+
+      .aurora-overlay {
+        top: 0%;
+        left: 58.5%;
+        width: 49%;
+      }
+
+      .bataan-overlay {
+        top: 69.5%;
+        left: 16.5%;
+        width: 16.5%;
+      }
+
+      .bulacan-overlay {
+        top: 55.2%;
+        left: 32.5%;
+        width: 34.5%;
+      }
+
+      .nueva-overlay {
+        top: 2.2%;
+        left: 32%;
+        width: 40.2%;
+      }
+
+      .pampanga-overlay {
+        top: 54.5%;
+        left: 22%;
+        width: 28%;
+      }
+
+      .tarlac-overlay {
+        top: 9.6%;
+        left: 9%;
+        width: 36%;
+      }
+
+      .zambales-overlay {
+        top: 28%;
+        left: 2.7%;
+        width: 37%;
+      }
+
+      .label {
+        cursor: pointer;
+      }
+
+      .zoom-stage {
+        position: relative;
+        width: fit-content;
+        max-width: 100%;
+        margin: 0 auto;
+        transform-origin: center center;
+        transition: transform 0.1s ease;
+      }
+
+      .municipality-layer {
+        position: absolute;
+        inset: 0;
+        display: none;
+      }
+
+      .municipality-layer.show {
+        display: block;
+      }
+
+      .zoom-controls {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        z-index: 100;
+      }
+
+      .zoom-controls button {
+        padding: 6px 10px;
+        border: none;
+        border-radius: 6px;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        cursor: pointer;
+      }
+
+      .province-map-container {
+        position: relative;
+        width: min(100%, 1200px);
+        height: 100%;
+        margin: 0 auto;
+        overflow: hidden;
+        cursor: grab;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .province-map-container:active {
+        cursor: grabbing;
+      }
+
+      .province-map {
+        width: 100%;
+        height: auto;
+        max-height: calc(97vh - 80px);
+        display: block;
+        object-fit: contain;
+        user-select: none;
+        pointer-events: none;
+      }
+
+      .municipality-layer {
+        position: absolute;
+        inset: 0;
+        display: none;
+      }
+
+      .municipality-layer.show {
+        display: block;
+      }
+
+      .map-label {
+        position: absolute;
+        transform: translate(-50%, 0);
+
+        background: rgba(0, 0, 0, 0.35);
+        border: none;
+        outline: none;
+        appearance: none;
+
+        color: white;
+        font-weight: bold;
+        font-size: clamp(10px, 0.9vw, 18px);
+        font-family: "Courier New", Courier, monospace;
+        line-height: 1;
+        white-space: nowrap;
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 8px;
+        z-index: 22;
+
+        transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+      }
+
+      .map-label.active-place {
+        transform: translate(-50%, -6px) scale(1.12);
+        color: #111;
+        background: #fff;
+
+        box-shadow:
+          0 2px 6px rgba(0,0,0,0.35),
+          0 0 0 3px rgba(255,255,255,0.95),
+          0 0 20px rgba(255,255,255,0.9),
+          0 10px 22px rgba(0,0,0,0.25);
+
+        border: 1px solid rgba(0,0,0,0.08); 
+        padding: 4px 10px;
+        border-radius: 999px;
+        z-index: 50;
+        backdrop-filter: blur(2px);
+      }
+
+      .map-label {
+        overflow: visible;
+      }
+
+      /* ================= AURORA ================= */
+      .province-theme-aurora .map-label:hover {
+        transform: translate(-50%, -3px) scale(1.08);
+        color: rgb(41, 179, 243);
+        background: rgba(255, 254, 254, 0.85);
+      }
+
+      /* ================= BATAAN ================= */
+      .province-theme-bataan .map-label:hover {
+        transform: translate(-50%, -3px) scale(1.08);
+        color: rgb(198, 40, 40);
+        background: rgba(255, 254, 254, 0.85);
+      }
+
+      /* ================= BULACAN ================= */
+      .province-theme-bulacan .map-label:hover {
+        transform: translate(-50%, -3px) scale(1.08);
+        color: rgb(250, 184, 17);
+        background: rgba(255, 254, 254, 0.85);
+      }
+
+      /* ================= NUEVA ECIJA ================= */
+      .province-theme-nueva .map-label:hover {
+        transform: translate(-50%, -3px) scale(1.08);
+        color: rgb(56, 142, 60);
+        background: rgba(255, 254, 254, 0.85);
+      }
+
+      /* ================= PAMPANGA ================= */
+      .province-theme-pampanga .map-label:hover {
+        transform: translate(-50%, -3px) scale(1.08);
+        color: rgb(142, 36, 170);
+        background: rgba(255, 254, 254, 0.85);
+      }
+
+      /* ================= TARLAC ================= */
+      .province-theme-tarlac .map-label:hover {
+        transform: translate(-50%, -3px) scale(1.08);
+        color: rgb(251, 140, 0);
+        background: rgba(255, 254, 254, 0.85);
+      }
+
+      /* ================= ZAMBALES ================= */
+      .province-theme-zambales .map-label:hover {
+        transform: translate(-50%, -3px) scale(1.08);
+        color: rgb(0, 137, 123);
+        background: rgba(255, 254, 254, 0.85);
+      }
+
+      .info-view {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+        min-height: 100%;
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.28s ease, transform 0.28s ease;
+      }
+
+      .info-view.changing {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      .info-view h2 {
+        margin: 0;
+        font-size: clamp(24px, 2vw, 38px);
+      }
+
+      .info-view h4 {
+        margin: 8px 0 18px 0;
+        font-size: clamp(14px, 1.1vw, 20px);
+        font-weight: 700;
+        color: #555;
+      }
+
+      .info-section {
+        margin-bottom: 18px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: #f7f7f7;
+        border-left: 5px solid #999;
+      }
+
+      .info-section h3 {
+        margin: 0 0 8px 0;
+        font-size: clamp(16px, 1.1vw, 22px);
+      }
+
+      .info-section p {
+        margin: 0;
+        font-size: clamp(13px, 1vw, 18px);
+        line-height: 1.65;
+        text-align: justify;
+      }
+
+      /* Aurora theme */
+      .province-theme-aurora .info-section {
+        border-left-color: rgb(41, 179, 243);
+      }
+
+      /* AURORA MUNICIPALITY LABEL POSITIONS */
+      .baler { top: 45%; left: 55%; }
+      .casiguran { top: 25%; left: 50%; }
+      .dilasag { top: 10%; left: 65%; }
+      .dinalungan { top: 20%; left: 70%; }
+      .dingalan { top: 70%; left: 45%; }
+      .mariaaurora { top: 35%; left: 52%; }
+      .sanluis { top: 55%; left: 50%; }
+
+      /* Bataan theme */
+      .province-theme-bataan .info-section {
+        border-left-color:  rgb(198, 40, 40);
+      }
+
+      /* BATAAN CITY AND MUNICIPALITY LABEL POSITIONS */
+      .balanga { top: 55%; left: 45%; }
+
+      .abucay { top: 45%; left: 50%; }
+      .bagac { top: 50%; left: 25%; }
+      .dinalupihan { top: 70%; left: 55%; }
+      .hermosa { top: 65%; left: 60%; }
+      .limay { top: 55%; left: 55%; }
+      .mariveles { top: 75%; left: 40%; }
+      .morong { top: 40%; left: 20%; }
+      .orani { top: 50%; left: 55%; }
+      .orion { top: 60%; left: 50%; }
+      .pilar { top: 60%; left: 45%; }
+      .samalan { top: 52%; left: 48%; }
+
+      /* Bulacan theme */
+      .province-theme-bulacan .info-section {
+        border-left-color: rgb(250, 184, 17);
+      }
+
+      /*BULACAN CITY AND MUNICIPALITY LABEL POSITIONS */
+      .malolos { top: 55%; left: 45%; }
+      .meycauayan { top: 75%; left: 60%; }
+      .bulsanjose { top: 25%; left: 55%; }
+
+      .angat { top: 20%; left: 50%; }
+      .balagtas { top: 65%; left: 55%; }
+      .baliuag { top: 40%; left: 50%; }
+      .bocaue { top: 70%; left: 58%; }
+      .bulakan { top: 65%; left: 48%; }
+      .bustos { top: 35%; left: 52%; }
+      .calumpit { top: 60%; left: 35%; }
+      .donaRemedios { top: 10%; left: 65%; }
+      .guiguinto { top: 58%; left: 50%; }
+      .hagonoy { top: 70%; left: 40%; }
+      .marilao { top: 72%; left: 55%; }
+      .norzagaray { top: 30%; left: 65%; }
+      .obando { top: 80%; left: 50%; }
+      .pandi { top: 50%; left: 60%; }
+      .paombong { top: 60%; left: 30%; }
+      .plaridel { top: 50%; left: 45%; }
+      .pulilan { top: 45%; left: 40%; }
+      .santamaria { top: 60%; left: 57%; }
+      .santarita { top: 65%; left: 38%; }
+      .sanmiguel { top: 20%; left: 40%; }
+      .sanildefonso { top: 30%; left: 45%; }
+      .sanrafael { top: 35%; left: 40%; }
+
+      /* Nueva Ecija theme */
+      .province-theme-nueva .info-section {
+        border-left-color: rgb(56, 142, 60);
+      }
+
+      /* NUEVA ECIJA CITY AND MUNICIPALITY LABEL POSITIONS */
+      .cabanatuan { top: 65%; left: 48.5%; }
+      .gapan { top: 85%; left: 51.5%; }
+      .palayan { top: 61%; left: 59.5%; }
+      .nesanjose { top: 35.5%; left: 51%; }
+      .munoz { top: 39.7%; left: 37%; }
+
+      .aliaga { top: 63%; left: 32%; }
+      .bongabon { top: 49.5%; left: 77%; }
+      .cabiao { top: 88.5%; left: 29.5%; }
+      .carranglan { top: 12%; left: 55.5%; }
+      .cuyapo { top: 34.5%; left: 14.5%; }
+      .gabaldon { top: 63%; left: 84.5%; }
+      .gmn { top: 54%; left: 57%; }
+      .gtinio { top: 78.5%; left: 74%; }
+      .guimba { top: 46%; left: 21%; }
+      .jaen { top: 74.8%; left: 33.5%; }
+      .laur { top: 64%; left: 68.5%; }
+      .licab { top: 58.3%; left: 21%; }
+      .llanera { top: 48%; left: 49%; }
+      .lupao { top: 28.5%; left: 41.5%; }
+      .nampicuan { top: 40.3%; left: 10%; }
+      .pantabangan { top: 36%; left: 70.2%; }
+      .penaranda { top: 80.5%; left: 54%; }
+      .quezon { top: 55%; left: 28.5%; }
+      .rizal { top: 44.5%; left: 65%; }
+      .nesanantonio { top: 80.2%; left: 25.8%; }
+      .nesanisidro { top: 84.5%; left: 37%; }
+      .sanleonardo { top: 77.5%; left: 42.3%; }
+      .santarosa { top: 71.8%; left: 48%; }
+      .santodomingo { top: 51%; left: 34.5%; }
+      .talavera { top: 57.2%; left: 42%; }
+      .talugtug { top: 36.5%; left: 26.5%; }
+      .zaragoza { top: 68%; left: 25%; }
+
+      /* Pampanga theme */
+      .province-theme-pampanga .info-section {
+        border-left-color: rgb(142, 36, 170);
+      }
+
+      /* PAMPANGA CITY AND MUNICIPALITY LABEL POSITIONS */
+      .angeles { top: 35%; left: 45%; }
+      .sanfernando { top: 45%; left: 50%; }
+      .mabalacat { top: 25%; left: 50%; }
+
+
+      .apalit { top: 60%; left: 55%; }
+      .arayat { top: 35%; left: 65%; }
+      .bacolor { top: 50%; left: 45%; }
+      .candaba { top: 50%; left: 70%; }
+      .floridablanca { top: 50%; left: 30%; }
+      .guagua { top: 60%; left: 40%; }
+      .lubao { top: 65%; left: 30%; }
+      .macabebe { top: 65%; left: 60%; }
+      .magalang { top: 70%; left: 60%; }
+      .masantol { top: 70%; left: 50%; }
+      .mexico { top: 45%; left: 55%; }
+      .minalin { top: 55%; left: 50%; }
+      .porac { top: 40%; left: 25%; }
+      .sasmuan { top: 70%; left: 40%; }
+      .santana { top: 60%; left: 65%; }
+      .santotomas { top: 55%; left: 58%; }
+
+      /* Tarlac theme */
+      .province-theme-tarlac .info-section {
+        border-left-color:  rgb(251, 140, 0);
+      }
+
+      /* TARLAC CITY AND MUNICIPALITY LABEL POSITIONS */
+      .tarlaccity { top: 50%; left: 50%; }
+
+      .anao { top: 30%; left: 40%; }
+      .bamban { top: 70%; left: 55%; }
+      .camiling { top: 45%; left: 25%; }
+      .capas { top: 60%; left: 50%; }
+      .concepcion { top: 65%; left: 60%; }
+      .gerona { top: 50%; left: 55%; }
+      .lapaz { top: 45%; left: 60%; }
+      .mayantoc { top: 50%; left: 20%; }
+      .moncada { top: 40%; left: 40%; }
+      .paniqui { top: 40%; left: 45%; }
+      .pura { top: 35%; left: 45%; }
+      .ramos { top: 35%; left: 50%; }
+      .sanclemente { top: 50%; left: 30%; }
+      .tarsanjose { top: 70%; left: 35%; }
+      .sanManuel { top: 25%; left: 50%; }
+      .santaignacia { top: 55%; left: 45%; }
+      .victoria { top: 65%; left: 65%; }
+
+      /* Zambales theme */
+      .province-theme-zambales .info-section {
+        border-left-color: rgb(0, 137, 123);
+      }
+
+      /* ZAMBALES CITY AND MUNICIPALITY LABEL POSITIONS */
+      .olongapo { top: 75%; left: 35%; }
+
+      .botolan { top: 55%; left: 40%; }
+      .cabangan { top: 45%; left: 35%; }
+      .candelaria { top: 35%; left: 30%; }
+      .castillejos { top: 70%; left: 40%; }
+      .iba { top: 50%; left: 38%; }
+      .masinloc { top: 25%; left: 35%; }
+      .palauig { top: 20%; left: 32%; }
+      .zamsanantonio { top: 65%; left: 38%; }
+      .sanfelipe { top: 60%; left: 35%; }
+      .sanmarcelino { top: 70%; left: 45%; }
+      .santacruz { top: 10%; left: 30%; }
+      .subic { top: 75%; left: 45%; }
+
+      .place-header {
+        display: flex;
+        justify-content: flex-start;
+        gap: 14px;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+      }
+
+      .place-title-group {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .place-title-group h2 {
+        margin: 0;
+      }
+
+      .place-title-group h4 {
+        margin: 8px 0 0 0;
+      }
+
+      .text-group {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-left: 8px;
+        flex: 1;
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      #placeTitle {
+        margin: 0;
+        font-size: clamp(26px, 3vw, 40px);
+        line-height: 1.1;
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+
+      #placeSubtitle {
+        margin: 4px 0 0 0;
+        font-size: clamp(16px, 1.5vw, 22px);
+        opacity: 0.8;
+        line-height: 1.2;
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      } 
+
+      #placeLogo {
+        width: 110px;
+        height: 110px;
+        object-fit: contain;
+
+        background: white;
+        border-radius: 50%;
+        padding: 6px;
+
+        box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+      }
+
+      .map-label-place:hover {
+        transform: scale(1.08);
+        color: #111;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 0 0 2px rgba(255,255,255,0.7), 0 8px 18px rgba(0,0,0,0.22);
+      }
+
+      @media (max-width: 1024px) {
+        .container {
+          gap: 15px;
+          padding: 15px;
+        }
+
+        .left-panel {
+          width: 38%;
+        }
+
+        .map-container {
+          width: min(75%, 560px);
+          margin-top: 110px;
+        }
+
+        .modal-box {
+          width: 92vw;
+          min-height: auto;
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          overflow: auto;
+        }
+
+        .container {
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+          height: auto;
+          width: 100%;
+        }
+
+        .left-panel {
+          width: min(92%, 620px);
+          max-width: 650px;
+          margin: 140px auto 20px auto;
+        }
+
+        .main {
+          min-height: 80vh;
+          width: 100%;
+        }
+
+        .logos {
+          top: 10px;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .map-container {
+          width: 85%;
+          margin-top: 150px;
+        }
+
+        .modal-box {
+          width: 92vw;
+          height: 95vh;
+          grid-template-columns: 1fr;
+          grid-template-rows: auto minmax(0, 1fr);
+        }
+
+        .modal-left {
+          justify-content: center;
+          align-items: center;
+          padding: 10px;
+          overflow: hidden;
+        }
+
+        .province-map-container {
+          width: min(100%, 520px);
+          margin: 0 auto;
+        }
+
+        .modal-right {
+          height: 100%;
+          min-height: 0;
+          overflow-y: scroll;
+          overflow-x: hidden;
+          padding-right: 8px;
+        }
+
+        #placeLogo {
+          width: 60px;
+          height: 60px;
+        }
+
+      }
+    
+  </style>
+
+</head>
+<body>
+
+  <div class="container">
+
+  <div class="brand-header">
+    <img src="logo.png" class="main-logo">
+
+    <div class="title">
+      <h1>ClickLash</h1>
+      <span>One click, One peek!</span>
+    </div>
+  </div>
+
+    <!-- LEFT TEXT -->
+    <div class="left-panel">
+      <p>
+        Ang Gitnang Luzon (Rehiyon III), na kilala bilang “Gitnang Kapatagan,” ay tanyag sa mayamang kultura, makulay na kasaysayan, at malaking ambag nito sa agrikultura ng Pilipinas. Ang rehiyong ito ay nagsisilbing mahalagang pinagkukunan ng pagkain ng bansa. Isang mapa ng rehiyon na nagsisilbing daluyan ng kaalaman at gabay upang mas makilala at mapag-aralan ang iba’t ibang lalawigan, lungsod, at bayan na bumubuo rito.
+        <br><br>
+        Napapalibutan ang rehiyong ito ng Ilocos Region (Rehiyon I) at Cordillera Administrative Region (CAR) sa hilaga, Cagayan Valley (Rehiyon II) sa hilagang-silangan, Dagat Pasipiko sa silangan, CALABARZON (Rehiyon IV-A) sa timog, at Dagat Kanlurang Pilipinas sa kanluran.
+      </p>
+    </div>
+
+    <!-- CENTER / RIGHT -->
+    <div class="main">
+
+      <!-- LOGOS -->
+      <div class="logos">
+        <img src="aurora.png" alt="Aurora" class="province-logo aurora-logo" onclick="openProvince('aurora')">
+        <img src="bataan.png" alt="Bataan" class="province-logo bataan-logo" onclick="openProvince('bataan')">
+        <img src="bulacan.png" alt="Bulacan" class="province-logo bulacan-logo" onclick="openProvince('bulacan')">
+        <img src="nueva_ecija.png" alt="Nueva Ecija" class="province-logo nueva-logo" onclick="openProvince('nueva_ecija')">
+        <img src="pampanga.png" alt="Pampanga" class="province-logo pampanga-logo" onclick="openProvince('pampanga')">
+        <img src="tarlac.png" alt="Tarlac" class="province-logo tarlac-logo" onclick="openProvince('tarlac')">
+        <img src="zambales.png" alt="Zambales" class="province-logo zambales-logo" onclick="openProvince('zambales')">
+      </div>
+
+      <!-- MAP WITH PINS -->
+      <div class="map-container">
+        <img src="region3.png" class="map">
+
+        <img src="aurora-highlight.png" class="province-overlay aurora-overlay">
+        <img src="bataan-highlight.png" class="province-overlay bataan-overlay">
+        <img src="bulacan-highlight.png" class="province-overlay bulacan-overlay">
+        <img src="nueva_ecija-highlight.png" class="province-overlay nueva-overlay">
+        <img src="pampanga-highlight.png" class="province-overlay pampanga-overlay">
+        <img src="tarlac-highlight.png" class="province-overlay tarlac-overlay">
+        <img src="zambales-highlight.png" class="province-overlay zambales-overlay">
+
+        <div class="pin aurora" onclick="openProvince('aurora')"><img src="pin.png"></div>
+        <div class="label aurora-label" onclick="openProvince('aurora')">AURORA</div>
+
+        <div class="pin bataan" onclick="openProvince('bataan')"><img src="pin.png"></div>
+        <div class="label bataan-label" onclick="openProvince('bataan')">BATAAN</div>
+
+        <div class="pin bulacan" onclick="openProvince('bulacan')"><img src="pin.png"></div>
+        <div class="label bulacan-label" onclick="openProvince('bulacan')">BULACAN</div>
+
+        <div class="pin nueva" onclick="openProvince('nueva_ecija')"><img src="pin.png"></div>
+        <div class="label nueva-label" onclick="openProvince('nueva_ecija')">NUEVA ECIJA</div>
+
+        <div class="pin pampanga" onclick="openProvince('pampanga')"><img src="pin.png"></div>
+        <div class="label pampanga-label" onclick="openProvince('pampanga')">PAMPANGA</div>
+
+        <div class="pin tarlac" onclick="openProvince('tarlac')"><img src="pin.png"></div>
+        <div class="label tarlac-label" onclick="openProvince('tarlac')">TARLAC</div>
+
+        <div class="pin zambales" onclick="openProvince('zambales')"><img src="pin.png"></div>
+        <div class="label zambales-label" onclick="openProvince('zambales')">ZAMBALES</div>
+      </div>
+      
+      <div class="modal" id="provinceModal">
+        <div class="modal-box">
+          <button class="close-btn" onclick="closeProvince()">×</button>
+
+          <div class="modal-left">
+            <div class="province-map-container" id="provinceMapContainer">
+              <div class="zoom-controls">
+                <button onclick="zoomIn()">+</button>
+                <button onclick="zoomOut()">-</button>
+                <button onclick="resetZoom()">Reset</button>
+              </div>
+
+              <div class="zoom-stage" id="zoomStage">
+                <img id="provinceImage" src="" alt="Province Map" class="province-map">
+
+              <!-- NUEVA ECIJA LAYER -->
+              <div class="municipality-layer" id="nuevaEcijaLayer">
+                <button class="map-label cabanatuan" onclick="openMunicipality('cabanatuan')">Cabanatuan</button>
+                <button class="map-label gapan" onclick="openMunicipality('gapan')">Gapan</button>
+                <button class="map-label palayan" onclick="openMunicipality('palayan')">Palayan</button>
+                <button class="map-label nesanjose" onclick="openMunicipality('nesan_jose')">San Jose</button>
+                <button class="map-label munoz" onclick="openMunicipality('munoz')">Muñoz</button>
+
+                <button class="map-label aliaga" onclick="openMunicipality('aliaga')">Aliaga</button>
+                <button class="map-label bongabon" onclick="openMunicipality('bongabon')">Bongabon</button>
+                <button class="map-label cabiao" onclick="openMunicipality('cabiao')">Cabiao</button>
+                <button class="map-label carranglan" onclick="openMunicipality('carranglan')">Carranglan</button>
+                <button class="map-label cuyapo" onclick="openMunicipality('cuyapo')">Cuyapo</button>
+                <button class="map-label gabaldon" onclick="openMunicipality('gabaldon')">Gabaldon</button>
+                <button class="map-label gmn" onclick="openMunicipality('gmn')">Gen. Natividad</button>
+                <button class="map-label gtinio" onclick="openMunicipality('gtinio')">Gen. Tinio</button>
+                <button class="map-label guimba" onclick="openMunicipality('guimba')">Guimba</button>
+                <button class="map-label jaen" onclick="openMunicipality('jaen')">Jaen</button>
+                <button class="map-label laur" onclick="openMunicipality('laur')">Laur</button>
+                <button class="map-label licab" onclick="openMunicipality('licab')">Licab</button>
+                <button class="map-label llanera" onclick="openMunicipality('llanera')">Llanera</button>
+                <button class="map-label lupao" onclick="openMunicipality('lupao')">Lupao</button>
+                <button class="map-label nampicuan" onclick="openMunicipality('nampicuan')">Nampicuan</button>
+                <button class="map-label pantabangan" onclick="openMunicipality('pantabangan')">Pantabangan</button>
+                <button class="map-label penaranda" onclick="openMunicipality('penaranda')">Peñaranda</button>
+                <button class="map-label quezon" onclick="openMunicipality('quezon')">Quezon</button>
+                <button class="map-label rizal" onclick="openMunicipality('rizal')">Rizal</button>
+                <button class="map-label nesanantonio" onclick="openMunicipality('nesan_antonio')">San Antonio</button>
+                <button class="map-label nesanisidro" onclick="openMunicipality('nesan_isidro')">San Isidro</button>
+                <button class="map-label sanleonardo" onclick="openMunicipality('san_leonardo')">San Leonardo</button>
+                <button class="map-label santarosa" onclick="openMunicipality('santa_rosa')">Santa Rosa</button>
+                <button class="map-label santodomingo" onclick="openMunicipality('santo_domingo')">Santo Domingo</button>
+                <button class="map-label talavera" onclick="openMunicipality('talavera')">Talavera</button>
+                <button class="map-label talugtug" onclick="openMunicipality('talugtug')">Talugtug</button>
+                <button class="map-label zaragoza" onclick="openMunicipality('zaragoza')">Zaragoza</button>
+              </div>
+
+              <!-- AURORA LAYER -->
+              <div class="municipality-layer" id="auroraLayer">
+                <button class="map-label baler" onclick="openMunicipality('baler')">Baler</button>
+                <button class="map-label casiguran" onclick="openMunicipality('casiguran')">Casiguran</button>
+                <button class="map-label dilasag" onclick="openMunicipality('dilasag')">Dilasag</button>
+                <button class="map-label dinalungan" onclick="openMunicipality('dinalungan')">Dinalungan</button>
+                <button class="map-label dingalan" onclick="openMunicipality('dingalan')">Dingalan</button>
+                <button class="map-label mariaaurora" onclick="openMunicipality('maria_aurora')">Maria Aurora</button>
+                <button class="map-label sanluis" onclick="openMunicipality('san_luis')">San Luis</button>
+              </div>
+
+              <!-- BATAAN LAYER -->
+              <div class="municipality-layer" id="bataanLayer">
+              <button class="map-label balanga" onclick="openMunicipality('balanga')">Balanga</button>
+
+                <button class="map-label abucay" onclick="openMunicipality('abucay')">Abucay</button>
+                <button class="map-label bagac" onclick="openMunicipality('bagac')">Bagac</button>
+                <button class="map-label dinalupihan" onclick="openMunicipality('dinalupihan')">Dinalupihan</button>
+                <button class="map-label hermosa" onclick="openMunicipality('hermosa')">Hermosa</button>
+                <button class="map-label limay" onclick="openMunicipality('limay')">Limay</button>
+                <button class="map-label mariveles" onclick="openMunicipality('mariveles')">Mariveles</button>
+                <button class="map-label morong" onclick="openMunicipality('morong')">Morong</button>
+                <button class="map-label orani" onclick="openMunicipality('orani')">Orani</button>
+                <button class="map-label orion" onclick="openMunicipality('orion')">Orion</button>
+                <button class="map-label pilar" onclick="openMunicipality('pilar')">Pilar</button>
+                <button class="map-label samal" onclick="openMunicipality('samal')">Samal</button>
+              </div>
+
+              <!-- BULACAN LAYER -->
+              <div class="municipality-layer" id="bulacanLayer">
+                <button class="map-label malolos" onclick="openMunicipality('malolos')">Malolos</button>
+                <button class="map-label meycauayan" onclick="openMunicipality('meycauayan')">Meycauayan</button>
+                <button class="map-label bulsanjose" onclick="openMunicipality('san_jose_del_monte')">San Jose del Monte</button>
+
+                <button class="map-label angat" onclick="openMunicipality('angat')">Angat</button>
+                <button class="map-label balagtas" onclick="openMunicipality('balagtas')">Balagtas</button>
+                <button class="map-label baliuag" onclick="openMunicipality('baliuag')">Baliuag</button>
+                <button class="map-label bocaue" onclick="openMunicipality('bocaue')">Bocaue</button>
+                <button class="map-label bulakan" onclick="openMunicipality('bulakan')">Bulakan</button>
+                <button class="map-label bustos" onclick="openMunicipality('bustos')">Bustos</button>
+                <button class="map-label calumpit" onclick="openMunicipality('calumpit')">Calumpit</button>
+                <button class="map-label drm" onclick="openMunicipality('dona_remedios_trinidad')">Doña Remedios Trinidad</button>
+                <button class="map-label guiguinto" onclick="openMunicipality('guiguinto')">Guiguinto</button>
+                <button class="map-label hagonoy" onclick="openMunicipality('hagonoy')">Hagonoy</button>
+                <button class="map-label marilao" onclick="openMunicipality('marilao')">Marilao</button>
+                <button class="map-label norzagaray" onclick="openMunicipality('norzagaray')">Norzagaray</button>
+                <button class="map-label obando" onclick="openMunicipality('obando')">Obando</button>
+                <button class="map-label pandi" onclick="openMunicipality('pandi')">Pandi</button>
+                <button class="map-label paombong" onclick="openMunicipality('paombong')">Paombong</button>
+                <button class="map-label plaridel" onclick="openMunicipality('plaridel')">Plaridel</button>
+                <button class="map-label pulilan" onclick="openMunicipality('pulilan')">Pulilan</button>
+                <button class="map-label sanildefonso" onclick="openMunicipality('san_ildefonso')">San Ildefonso</button>
+                <button class="map-label sanmiguel" onclick="openMunicipality('san_miguel')">San Miguel</button>
+                <button class="map-label sanrafael" onclick="openMunicipality('san_rafael')">San Rafael</button>
+                <button class="map-label santamaria" onclick="openMunicipality('santa_maria')">Santa Maria</button>
+                <button class="map-label santarita" onclick="openMunicipality('santa_rita')">Santa Rita</button>
+              </div>
+
+              <!-- PAMPANGA LAYER -->
+              <div class="municipality-layer" id="pampangaLayer">
+                <button class="map-label angeles" onclick="openMunicipality('angeles')">Angeles</button>
+                <button class="map-label sanfernando" onclick="openMunicipality('san_fernando')">San Fernando</button>
+                <button class="map-label mabalacat" onclick="openMunicipality('mabalacat')">Mabalacat</button>
+
+                <button class="map-label apalit" onclick="openMunicipality('apalit')">Apalit</button>
+                <button class="map-label arayat" onclick="openMunicipality('arayat')">Arayat</button>
+                <button class="map-label bacolor" onclick="openMunicipality('bacolor')">Bacolor</button>
+                <button class="map-label candaba" onclick="openMunicipality('candaba')">Candaba</button>
+                <button class="map-label floridablanca" onclick="openMunicipality('floridablanca')">Floridablanca</button>
+                <button class="map-label guagua" onclick="openMunicipality('guagua')">Guagua</button>
+                <button class="map-label lubao" onclick="openMunicipality('lubao')">Lubao</button>
+                <button class="map-label macabebe" onclick="openMunicipality('macabebe')">Macabebe</button>
+                <button class="map-label magalang" onclick="openMunicipality('magalang')">Magalang</button>
+                <button class="map-label masantol" onclick="openMunicipality('masantol')">Masantol</button>
+                <button class="map-label mexico" onclick="openMunicipality('mexico')">Mexico</button>
+                <button class="map-label minalin" onclick="openMunicipality('minalin')">Minalin</button>
+                <button class="map-label porac" onclick="openMunicipality('porac')">Porac</button>
+                <button class="map-label sasmuan" onclick="openMunicipality('sasmuan')">Sasmuan</button>
+                <button class="map-label santana" onclick="openMunicipality('santa_ana')">Santa Ana</button>
+                <button class="map-label santotomas" onclick="openMunicipality('santo_tomas')">Santo Tomas</button>
+              </div>
+
+              <!-- TARLAC LAYER -->
+              <div class="municipality-layer" id="tarlacLayer">
+                <button class="map-label tarlaccity" onclick="openMunicipality('tarlac_city')">Tarlac City</button>
+
+                <button class="map-label anao" onclick="openMunicipality('anao')">Anao</button>
+                <button class="map-label bamban" onclick="openMunicipality('bamban')">Bamban</button>
+                <button class="map-label camiling" onclick="openMunicipality('camiling')">Camiling</button>
+                <button class="map-label capas" onclick="openMunicipality('capas')">Capas</button>
+                <button class="map-label concepcion" onclick="openMunicipality('concepcion')">Concepcion</button>
+                <button class="map-label gerona" onclick="openMunicipality('gerona')">Gerona</button>
+                <button class="map-label lapaz" onclick="openMunicipality('la_paz')">La Paz</button>
+                <button class="map-label mayantoc" onclick="openMunicipality('mayantoc')">Mayantoc</button>
+                <button class="map-label moncada" onclick="openMunicipality('moncada')">Moncada</button>
+                <button class="map-label paniqui" onclick="openMunicipality('paniqui')">Paniqui</button>
+                <button class="map-label pura" onclick="openMunicipality('pura')">Pura</button>
+                <button class="map-label ramos" onclick="openMunicipality('ramos')">Ramos</button>
+                <button class="map-label sanclemente" onclick="openMunicipality('san_clemente')">San Clemente</button>
+                <button class="map-label tarsanjose" onclick="openMunicipality('tarsan_jose')">San Jose</button>
+                <button class="map-label sanmanuel" onclick="openMunicipality('san_manuel')">San Manuel</button>
+                <button class="map-label santaignacia" onclick="openMunicipality('santa_ignacia')">Santa Ignacia</button>
+                <button class="map-label victoria" onclick="openMunicipality('victoria')">Victoria</button>
+              </div>
+
+              <!-- ZAMBALES LAYER -->
+              <div class="municipality-layer" id="zambalesLayer">
+                <button class="map-label olongapo" onclick="openMunicipality('olongapo')">Olongapo</button>
+
+                <button class="map-label botolan" onclick="openMunicipality('botolan')">Botolan</button>
+                <button class="map-label cabangan" onclick="openMunicipality('cabangan')">Cabangan</button>
+                <button class="map-label candelaria" onclick="openMunicipality('candelaria')">Candelaria</button>
+                <button class="map-label castillejos" onclick="openMunicipality('castillejos')">Castillejos</button>
+                <button class="map-label iba" onclick="openMunicipality('iba')">Iba</button>
+                <button class="map-label masinloc" onclick="openMunicipality('masinloc')">Masinloc</button>
+                <button class="map-label palauig" onclick="openMunicipality('palauig')">Palauig</button>
+                <button class="map-label zamsanantonio" onclick="openMunicipality('zamsan_antonio')">San Antonio</button>
+                <button class="map-label sanfelipe" onclick="openMunicipality('san_felipe')">San Felipe</button>
+                <button class="map-label sanmarcelino" onclick="openMunicipality('san_marcelino')">San Marcelino</button>
+                <button class="map-label santacruz" onclick="openMunicipality('santa_cruz')">Santa Cruz</button>
+                <button class="map-label subic" onclick="openMunicipality('subic')">Subic</button>
+              </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-right province-theme-nueva" id="modalRight">
+            <div class="info-view" id="infoView">
+              <button id="backToProvinceBtn" onclick="backToProvince()" style="display:none;">
+                ← Back to Province
+              </button>
+
+              <div class="place-header">
+                <img id="placeLogo" src="" alt="Place Logo">
+
+                <div class="text-group">
+                  <h1 id="placeTitle">Nueva Ecija</h1>
+                  <h2 id="placeSubtitle">Rice Granary of the Philippines</h2>
+                </div>
+              </div>
+
+              <div class="info-section">
+                <h3 id="section1Title">Wika at Diyalekto</h3>
+                <p id="quickFacts"></p>
+              </div>
+
+              <div class="info-section">
+                <h3 id="section2Title">Mga Bayani</h3>
+                <p id="touristSpots"></p>
+              </div>
+
+              <div class="info-section">
+                <h3 id="section3Title">Pinagmulan ng Pangalan ng Lalawigan</h3>
+                <p id="festivalInfo"></p>
+              </div>
+
+              <div class="info-section">
+                <h3 id="section4Title">Maikling Kasaysayan</h3>
+                <p id="historyInfo"></p>
+              </div>
+
+              <div class="info-section">
+                <h3 id="section5Title">Pangunahing Hanapbuhay</h3>
+                <p id="localProducts"></p>
+              </div>
+              </div>
+            </div>
+          </div>
+            
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let currentProvince = null;
+    
+    const provinceData = {
+      aurora: {
+        title: "Aurora",
+        image: "aurora-map.png",
+        text: "Ang Aurora ay isang lalawigan sa silangang bahagi ng Gitnang Luzon. Kilala ito sa mga baybayin, bundok, at likas na yaman. Isa rin ito sa mga lugar na tanyag sa surfing at eco-tourism."
+      },
+      bataan: {
+        title: "Bataan",
+        image: "bataan-map.png",
+        text: "Ang Bataan ay isang lalawigan na kilala sa makasaysayang papel nito noong Ikalawang Digmaang Pandaigdig. Mayaman din ito sa baybayin, bundok, at mga pook pasyalan."
+      },
+      bulacan: {
+        title: "Bulacan",
+        image: "bulacan-map.png",
+        text: "Ang Bulacan ay kilala bilang isa sa mga makasaysayang lalawigan ng bansa. Tanyag ito sa kultura, sining, tradisyon, at bilang tahanan ng maraming bayani at manunulat."
+      },
+      nueva_ecija: {
+        image: "nueva_ecija-map.png",
+        title: "Nueva Ecija",
+        subtitle: "Rice Granary of the Philippines",
+        facts: "Wika/Diyalekto: Tagalog, Ilocano, Kapampangan, Pangasinan",
+        history: "Itinatag noong 1777 at kabilang sa walong sinag ng araw sa watawat ng Pilipinas. Kilala ito bilang mahalagang sentro ng agrikultura sa bansa.",
+        spots: "Minalungao National Park, Pantabangan Dam, Dalton Pass",
+        festival: "Iba-ibang pista at pagdiriwang sa mga bayan at lungsod nito.",
+        products: "Bigas, sibuyas, gulay"
+      },
+      pampanga: {
+        title: "Pampanga",
+        image: "pampanga-map.png",
+        text: "Ang Pampanga ay tanyag sa masasarap na pagkain, mayamang kultura, at mahahalagang pagdiriwang. Isa rin ito sa mga sentrong pang-ekonomiya ng Gitnang Luzon."
+      },
+      tarlac: {
+        image: "tarlac-map.png",
+        title: "Tarlac",
+        subtitle: "Rice Granary of the Philippines",
+        facts: "Wika/Diyalekto: Tagalog, Ilocano, Kapampangan, Pangasinan",
+        history: "Itinatag noong 1777 at kabilang sa walong sinag ng araw sa watawat ng Pilipinas. Kilala ito bilang mahalagang sentro ng agrikultura sa bansa.",
+        spots: "Minalungao National Park, Pantabangan Dam, Dalton Pass",
+        festival: "Iba-ibang pista at pagdiriwang sa mga bayan at lungsod nito.",
+        products: "Bigas, sibuyas, gulay"
+      },
+      zambales: {
+        title: "Zambales",
+        image: "zambales-map.png",
+        text: "Ang Zambales ay kilala sa mga beach, bundok, at likas na yaman nito. Tanyag din ito sa mangoes, turismo, at mga tanawing malapit sa West Philippine Sea."
+      }
+    };
+
+    const municipalityInfo = {
+      // AURORA LAYER
+      baler: {
+        title: "Baler",
+        subtitle: "Capital of Aurora",
+        facts: "Uri: Bayan • Kabisera ng Aurora",
+        history: "Kilala sa makasaysayang Siege of Baler noong panahon ng Espanyol. Isa rin ito sa mga pinakasikat na surfing destinations sa bansa.",
+        spots: "Sabang Beach • Museo de Baler • Ermita Hill",
+        festival: "Aurora Day Festival",
+        products: "Isda • Surfing tourism • Coconut products"
+      },
+
+      casiguran: {
+        title: "Casiguran",
+        subtitle: "Gateway to Northern Aurora",
+        facts: "Uri: Bayan • Pinakamalaking bayan sa Aurora",
+        history: "Isa sa mga pinakamatandang bayan sa lalawigan at may mahalagang papel sa lokal na kalakalan at pangingisda.",
+        spots: "Casiguran Sound • Coastal Areas",
+        festival: "Town Fiesta",
+        products: "Isda • Copra • Agricultural products"
+      },
+
+      dilasag: {
+        title: "Dilasag",
+        subtitle: "Nature Haven of Aurora",
+        facts: "Uri: Bayan • Kilala sa likas na yaman",
+        history: "Isang tahimik na bayan na napapalibutan ng kagubatan at baybayin, mainam para sa eco-tourism.",
+        spots: "Dilasag Beach • Forest Areas",
+        festival: "Town Fiesta",
+        products: "Isda • Kahoy • Agricultural products"
+      },
+
+      dinalungan: {
+        title: "Dinalungan",
+        subtitle: "Surfing Spot of the North",
+        facts: "Uri: Bayan • Kilala sa alon",
+        history: "Isa sa mga bagong bayan ng Aurora, unti-unting umuunlad dahil sa turismo.",
+        spots: "Dinalungan Beach • Coastal Spots",
+        festival: "Town Fiesta",
+        products: "Isda • Copra • Local goods"
+      },
+
+      dingalan: {
+        title: "Dingalan",
+        subtitle: "Batanes of the East",
+        facts: "Uri: Bayan • Kilala sa cliffs at tanawin",
+        history: "Sumikat dahil sa mga bangin at scenic views na kahawig ng Batanes.",
+        spots: "White Beach • Lamao Caves • Viewpoints",
+        festival: "Dingalan Festival",
+        products: "Isda • Turismo • Agricultural products"
+      },
+
+      maria_aurora: {
+        title: "Maria Aurora",
+        subtitle: "Heart of Aurora",
+        facts: "Uri: Bayan • Gitnang bahagi ng lalawigan",
+        history: "Ipinangalan kay Doña Maria Aurora Quezon. Isa ito sa mga sentro ng agrikultura sa lalawigan.",
+        spots: "Town Plaza • Farms",
+        festival: "Town Fiesta",
+        products: "Bigas • Gulay • Coconut products"
+      },
+
+      san_luis: {
+        title: "San Luis",
+        subtitle: "Eco-Tourism Destination",
+        facts: "Uri: Bayan • Kilala sa kalikasan",
+        history: "Isang bayan na mayaman sa kagubatan at biodiversity, mahalaga sa eco-tourism ng Aurora.",
+        spots: "Ditumabo Falls (Mother Falls) • Forest Trails",
+        festival: "Town Fiesta",
+        products: "Kahoy • Agricultural products • Local crafts"
+      },
+
+      // BATAAN LAYER
+      balanga: {
+        title: "Balanga City",
+        subtitle: "Capital of Bataan",
+        facts: "Uri: Lungsod • Kabisera ng Bataan",
+        history: "Naging lungsod noong 2000 at sentro ng pamahalaan ng lalawigan.",
+        spots: "Plaza Mayor • St. Joseph Cathedral",
+        festival: "Pawikan Festival",
+        products: "Fish products • Local delicacies"
+      },
+
+      abucay: {
+        title: "Abucay",
+        subtitle: "Historic Town of Bataan",
+        facts: "Uri: Bayan • Makasaysayang lugar",
+        history: "Isa sa pinakamatandang bayan sa Bataan, mahalaga noong WWII.",
+        spots: "Abucay Church • WWII sites",
+        festival: "Town Fiesta",
+        products: "Agricultural products"
+      },
+
+      bagac: {
+        title: "Bagac",
+        subtitle: "Heritage and Beach Town",
+        facts: "Uri: Bayan • Kilala sa Las Casas",
+        history: "Kilala sa heritage resort na Las Casas Filipinas de Acuzar.",
+        spots: "Las Casas Filipinas de Acuzar • Beaches",
+        festival: "Town Fiesta",
+        products: "Tourism services"
+      },
+
+      dinalupihan: {
+        title: "Dinalupihan",
+        subtitle: "Gateway to Bataan",
+        facts: "Uri: Bayan • Entry point ng lalawigan",
+        history: "Mahalagang daanan papasok ng Bataan.",
+        spots: "Mountains • Nature spots",
+        festival: "Town Fiesta",
+        products: "Agricultural goods"
+      },
+
+      hermosa: {
+        title: "Hermosa",
+        subtitle: "Industrializing Town",
+        facts: "Uri: Bayan • Umuunlad na industriya",
+        history: "Lumalaki bilang industrial area.",
+        spots: "Industrial parks",
+        festival: "Town Fiesta",
+        products: "Industrial products"
+      },
+
+      limay: {
+        title: "Limay",
+        subtitle: "Energy Hub of Bataan",
+        facts: "Uri: Bayan • Kilala sa refinery",
+        history: "Sentro ng energy at oil industry.",
+        spots: "Coastal areas",
+        festival: "Town Fiesta",
+        products: "Industrial goods"
+      },
+
+      mariveles: {
+        title: "Mariveles",
+        subtitle: "Freeport Area of Bataan",
+        facts: "Uri: Bayan • Export processing zone",
+        history: "Dito matatagpuan ang Freeport Area of Bataan.",
+        spots: "Five Fingers Cove • Beaches",
+        festival: "Town Fiesta",
+        products: "Industrial products"
+      },
+
+      morong: {
+        title: "Morong",
+        subtitle: "Beach Destination",
+        facts: "Uri: Bayan • Kilala sa beach",
+        history: "Popular tourist destination sa Bataan.",
+        spots: "Anvaya Cove • Pawikan Conservation Center",
+        festival: "Town Fiesta",
+        products: "Tourism services"
+      },
+
+      orani: {
+        title: "Orani",
+        subtitle: "Religious Town",
+        facts: "Uri: Bayan • Kilala sa simbahan",
+        history: "Sentro ng debosyon sa Our Lady of the Most Holy Rosary.",
+        spots: "Orani Church",
+        festival: "Town Fiesta",
+        products: "Local delicacies"
+      },
+
+      orion: {
+        title: "Orion",
+        subtitle: "Coastal Municipality",
+        facts: "Uri: Bayan • Malapit sa dagat",
+        history: "Isang tahimik na bayan na may coastal resources.",
+        spots: "Coastal areas",
+        festival: "Town Fiesta",
+        products: "Fish products"
+      },
+
+      pilar: {
+        title: "Pilar",
+        subtitle: "Shrine of Valor Town",
+        facts: "Uri: Bayan • WWII landmark",
+        history: "Dito matatagpuan ang Mt. Samat Shrine.",
+        spots: "Mt. Samat National Shrine",
+        festival: "Araw ng Kagitingan",
+        products: "Tourism services"
+      },
+
+      samal: {
+        title: "Samal",
+        subtitle: "Agricultural Town",
+        facts: "Uri: Bayan • Tahimik na komunidad",
+        history: "Isang agrikultural na bayan sa Bataan.",
+        spots: "Fields • Farms",
+        festival: "Town Fiesta",
+        products: "Rice • Vegetables"
+      },
+
+      // BULACAN LAYER
+      malolos: {
+        title: "Malolos City",
+        subtitle: "Cradle of the First Philippine Republic",
+        facts: "Uri: Lungsod • Kabisera ng Bulacan",
+        history: "Dito itinatag ang Unang Republika ng Pilipinas noong 1899. Kilala rin sa Barasoain Church.",
+        spots: "Barasoain Church • Malolos Cathedral • Museo ng Republika",
+        festival: "Singkaban Festival",
+        products: "Kakanin • Inipit • Chicharon"
+      },
+
+      meycauayan: {
+        title: "Meycauayan City",
+        subtitle: "Industrial Jewel of Bulacan",
+        facts: "Uri: Lungsod • Kilala sa alahas at leather",
+        history: "Isa sa pinakamatandang bayan sa Bulacan, itinatag noong panahon ng Espanyol.",
+        spots: "St. Francis of Assisi Church • Local industries",
+        festival: "Town Fiesta",
+        products: "Alahas • Leather goods"
+      },
+
+      san_jose_del_monte: {
+        title: "San Jose del Monte City",
+        subtitle: "Rising City of Bulacan",
+        facts: "Uri: Lungsod • Pinakamalaking lungsod sa Bulacan",
+        history: "Naging lungsod noong 2000 at patuloy na umuunlad bilang residential at commercial hub.",
+        spots: "Grotto Shrine • Nature areas",
+        festival: "Tungko Festival",
+        products: "Local goods • Agricultural products"
+      },
+
+      angat: {
+        title: "Angat",
+        subtitle: "Home of Angat Dam",
+        facts: "Uri: Bayan • Pinagkukunan ng tubig sa Metro Manila",
+        history: "Kilala sa Angat Dam na mahalaga sa suplay ng tubig at kuryente.",
+        spots: "Angat Dam • Bitbit River",
+        festival: "Town Fiesta",
+        products: "Isda • Agricultural products"
+      },
+
+      balagtas: {
+        title: "Balagtas",
+        subtitle: "Named after Francisco Balagtas",
+        facts: "Uri: Bayan • Dating Bigaa",
+        history: "Ipinangalan sa makatang si Francisco Balagtas.",
+        spots: "Balagtas Monument • Town Plaza",
+        festival: "Balagtasan Festival",
+        products: "Local delicacies"
+      },
+
+      baliuag: {
+        title: "Baliwag City",
+        subtitle: "Commercial Center of Bulacan",
+        facts: "Uri: Lungsod • Kilala sa negosyo",
+        history: "Isa sa mga pangunahing sentrong pangkalakalan sa lalawigan.",
+        spots: "St. Augustine Parish • SM Baliwag",
+        festival: "Buntal Hat Festival",
+        products: "Suman • Buntal hats"
+      },
+
+      bocaue: {
+        title: "Bocaue",
+        subtitle: "Fireworks Capital of the Philippines",
+        facts: "Uri: Bayan • Kilala sa paputok",
+        history: "Tanyag sa industriya ng fireworks at sa Obando fertility rites nearby.",
+        spots: "Bocaue River • Local factories",
+        festival: "River Festival",
+        products: "Fireworks • Local goods"
+      },
+
+      bulakan: {
+        title: "Bulakan",
+        subtitle: "Birthplace of Marcelo H. del Pilar",
+        facts: "Uri: Bayan • Makasaysayang lugar",
+        history: "Pinagmulan ng bayani at propagandistang si Marcelo H. del Pilar.",
+        spots: "Marcelo H. del Pilar Shrine",
+        festival: "Town Fiesta",
+        products: "Local delicacies"
+      },
+
+      bustos: {
+        title: "Bustos",
+        subtitle: "Home of Bustos Dam",
+        facts: "Uri: Bayan • Kilala sa dam",
+        history: "Ang Bustos Dam ay mahalaga sa irigasyon ng Gitnang Luzon.",
+        spots: "Bustos Dam • River parks",
+        festival: "Minasa Festival",
+        products: "Minasa • Fish products"
+      },
+
+      calumpit: {
+        title: "Calumpit",
+        subtitle: "Oldest Town of Bulacan",
+        facts: "Uri: Bayan • Itinatag noong 1572",
+        history: "Isa sa pinakamatandang bayan sa lalawigan.",
+        spots: "St. John the Baptist Church",
+        festival: "Libad Festival",
+        products: "Rice • Fish"
+      },
+
+      dona_remedios_trinidad: {
+        title: "Doña Remedios Trinidad",
+        subtitle: "Largest Town in Bulacan",
+        facts: "Uri: Bayan • Kilala sa kagubatan",
+        history: "Pinakamalawak na bayan sa Bulacan, mayaman sa likas na yaman.",
+        spots: "Mountains • Rivers • Eco-tourism spots",
+        festival: "Town Fiesta",
+        products: "Forest products • Agriculture"
+      },
+
+      guiguinto: {
+        title: "Guiguinto",
+        subtitle: "Garden Capital of Bulacan",
+        facts: "Uri: Bayan • Kilala sa halaman",
+        history: "Tanyag sa ornamental plants at landscaping industry.",
+        spots: "Garden shops • Local parks",
+        festival: "Halamanan Festival",
+        products: "Ornamental plants"
+      },
+
+      hagonoy: {
+        title: "Hagonoy",
+        subtitle: "Fishing Capital of Bulacan",
+        facts: "Uri: Bayan • Kilala sa pangingisda",
+        history: "Isang coastal town na mayaman sa aquaculture.",
+        spots: "Fishponds • Coastal areas",
+        festival: "Town Fiesta",
+        products: "Isda • Seafood"
+      },
+
+      marilao: {
+        title: "Marilao",
+        subtitle: "Industrial Hub",
+        facts: "Uri: Bayan • Malapit sa Metro Manila",
+        history: "Isa sa mga industrialized areas sa Bulacan.",
+        spots: "Industrial parks",
+        festival: "Town Fiesta",
+        products: "Industrial goods"
+      },
+
+      norzagaray: {
+        title: "Norzagaray",
+        subtitle: "Gateway to Nature",
+        facts: "Uri: Bayan • Kilala sa bundok",
+        history: "Mayaman sa likas na yaman at limestone formations.",
+        spots: "Bitbit River • Caves",
+        festival: "Town Fiesta",
+        products: "Agricultural products"
+      },
+
+      obando: {
+        title: "Obando",
+        subtitle: "Fertility Dance Town",
+        facts: "Uri: Bayan • Kilala sa sayaw",
+        history: "Tanyag sa Obando Fertility Rites.",
+        spots: "Church • Festival routes",
+        festival: "Obando Fertility Festival",
+        products: "Local delicacies"
+      },
+
+      pandi: {
+        title: "Pandi",
+        subtitle: "Growing Municipality",
+        facts: "Uri: Bayan • Umuunlad na bayan",
+        history: "Isang developing area sa Bulacan.",
+        spots: "Town Plaza",
+        festival: "Town Fiesta",
+        products: "Local goods"
+      },
+
+      paombong: {
+        title: "Paombong",
+        subtitle: "Home of Vinegar",
+        facts: "Uri: Bayan • Kilala sa suka",
+        history: "Tanyag sa paggawa ng sukang Paombong.",
+        spots: "Local markets",
+        festival: "Town Fiesta",
+        products: "Suka • Fish"
+      },
+
+      plaridel: {
+        title: "Plaridel",
+        subtitle: "Quingua Heritage Town",
+        facts: "Uri: Bayan • Makasaysayang lugar",
+        history: "Dito naganap ang Battle of Quingua.",
+        spots: "Barasoain-related sites",
+        festival: "Town Fiesta",
+        products: "Local goods"
+      },
+
+      pulilan: {
+        title: "Pulilan",
+        subtitle: "Carabao Festival Town",
+        facts: "Uri: Bayan • Kilala sa kalabaw",
+        history: "Tanyag sa Kneeling Carabao Festival.",
+        spots: "Town Plaza",
+        festival: "Carabao Festival",
+        products: "Rice • Local products"
+      },
+
+      santa_maria: {
+        title: "Santa Maria",
+        subtitle: "Gateway to Eastern Bulacan",
+        facts: "Uri: Bayan • Isa sa pinakamabilis na lumalagong bayan sa Bulacan",
+        history: "Itinatag noong 1792 mula sa mga bahagi ng Bocaue. Kilala ito sa mabilis na urban development at pagiging residential hub malapit sa Metro Manila.",
+        spots: "Minor Basilica of La Purisima Concepcion • Angat River • Local Parks",
+        festival: "Fiesta ng Immaculate Conception",
+        products: "Kakanin • Local delicacies • Agricultural products"
+      },
+
+      santa_rita: {
+        title: "Santa Rita",
+        subtitle: "Small but Vibrant Town",
+        facts: "Uri: Bayan • Tahimik na komunidad",
+        history: "Isang maliit ngunit maunlad na bayan.",
+        spots: "Church • Plaza",
+        festival: "Town Fiesta",
+        products: "Agricultural products"
+      },
+
+      san_miguel: {
+        title: "San Miguel",
+        subtitle: "Largest Rice Producer",
+        facts: "Uri: Bayan • Malawak ang sakahan",
+        history: "Isa sa pinakamalalaking bayan sa Bulacan.",
+        spots: "Fields • Rural areas",
+        festival: "Town Fiesta",
+        products: "Bigas • Mais"
+      },
+
+      san_ildefonso: {
+        title: "San Ildefonso",
+        subtitle: "Agricultural Municipality",
+        facts: "Uri: Bayan • Kilala sa sakahan",
+        history: "Isang agrikultural na bayan sa hilagang Bulacan.",
+        spots: "Fields • Farms",
+        festival: "Town Fiesta",
+        products: "Rice • Vegetables"
+      },
+
+      san_rafael: {
+        title: "San Rafael",
+        subtitle: "Eco-Tourism Destination",
+        facts: "Uri: Bayan • Kilala sa resorts",
+        history: "Sumikat dahil sa mga resort at nature spots.",
+        spots: "Resorts • Rivers",
+        festival: "Town Fiesta",
+        products: "Tourism services"
+      },
+
+      // NUEVA ECIJA LAYER
+      cabanatuan: {
+        title: "Cabanatuan City",
+        subtitle: "Commercial Center of Nueva Ecija",
+        facts: "Uri: Lungsod • Dating kabisera ng Nueva Ecija",
+        history: "Itinatag bilang baryo ng Gapan noong 1750 at naging lungsod noong 1950. Isa ito sa pinakamahalagang sentro ng kalakalan sa lalawigan.",
+        spots: "Freedom Park, Plaza Lucero, St. Nicholas of Tolentine Cathedral",
+        festival: "Banatu Festival, Mais Festival",
+        products: "Longganisa, batutay, bibingka, puto bumbong"
+      },
+
+      gapan: {
+        title: "Gapan City",
+        subtitle: "Footwear Capital of the North",
+        facts: "Uri: Lungsod • Pinakamatandang bayan sa Nueva Ecija",
+        history: "Itinatag noong 1595 at naging lungsod noong 2001. Kilala ito sa mahabang kasaysayan at sa industriya ng tsinelas.",
+        spots: "Divina Pastora Shrine, Gapan Plaza, Ferris Wheel",
+        festival: "Tsinelas Festival",
+        products: "Tsinelas, kakanin, buko products"
+      },
+
+      palayan: {
+        title: "Palayan City",
+        subtitle: "Capital of Nueva Ecija",
+        facts: "Uri: Lungsod • Planned city",
+        history: "Itinatag noong 1965 bilang kabisera ng Nueva Ecija. Isa ito sa mga planned cities sa Pilipinas.",
+        spots: "Aulo Dam, Palayan City Park, Fort Magsaysay",
+        festival: "Pala Alay Festival",
+        products: "Pinapaitang kambing, ulang"
+      },
+
+      nesan_jose: {
+        title: "San Jose City",
+        subtitle: "Onion Capital of the Philippines",
+        facts: "Uri: Lungsod • Kilala sa sibuyas",
+        history: "Dating tinawag na Kabaritan at naging lungsod noong 1969. Isa sa mga pangunahing sentro ng kalakalan sa hilagang Nueva Ecija.",
+        spots: "Tayabo Nature Park, city landmarks",
+        festival: "Pagibang Damara Festival, Tanduyong Festival",
+        products: "Fresh onions, kakanin, local delicacies"
+      },
+
+      munoz: {
+        title: "Science City of Muñoz",
+        subtitle: "Science City of the Philippines",
+        facts: "Uri: Lungsod • Sentro ng agricultural research",
+        history: "Naging lungsod noong 2000 at kilala sa presensya ng CLSU at iba pang research institutions.",
+        spots: "CLSU Museums, Philippine Carabao Center, Rice Science Museum",
+        festival: "Uhay Festival",
+        products: "Dairy products, rice wine, mushroom chicharon"
+      },
+
+      aliaga: {
+        title: "Aliaga",
+        subtitle: "Bayan ng Taunang Pista",
+        facts: "Pinagmulan ng Pangalan: Hinango sa pangalan ni Doña Aliaga, isang kilalang personalidad noong panahon ng Espanyol",
+        history: "Itinatag noong 1748 at kilala sa mga makukulay na tradisyon at relihiyosong pagdiriwang.",
+        festival: "Taong Putik Festival",
+        spots: "St. John the Baptist Church — Aliaga • Bayan Center",
+        products: "Bigas • Gulay • Lokal na produkto"
+      },
+
+      bongabon: {
+        title: "Bongabon",
+        subtitle: "Onion Capital of the Philippines",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang “bongabon” na tumutukoy sa uri ng halaman sa lugar",
+        history: "Isa sa mga pangunahing bayan sa silangan ng Nueva Ecija, kilala sa malawak na taniman ng sibuyas.",
+        festival: "Sibuyasan Festival",
+        spots: "Mt. Palali — Bongabon • Nature Spots",
+        products: "Sibuyas • Gulay • Agricultural products"
+      },
+
+      cabiao: {
+        title: "Cabiao",
+        subtitle: "Agricultural Town",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang “kabayo” na sumasalamin sa kasaysayan ng lugar",
+        history: "Itinatag noong panahon ng Espanyol at kilala sa pagsasaka at pagiging tahimik na bayan.",
+        festival: "Araquio Festival",
+        spots: "St. Joseph Parish — Cabiao • Town Plaza",
+        products: "Bigas • Mais • Gulay"
+      },
+
+      carranglan: {
+        title: "Carranglan",
+        subtitle: "Gateway to the North",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang Ilocano na tumutukoy sa kagubatan",
+        history: "Matatagpuan sa hilagang bahagi ng lalawigan at nagsisilbing daanan papunta sa mga karatig rehiyon.",
+        festival: "Town Fiesta",
+        spots: "Mountain Views — Carranglan • Nature Areas",
+        products: "Kahoy • Agricultural products"
+      },
+
+      cuyapo: {
+        title: "Cuyapo",
+        subtitle: "Growing Municipality",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang “kuyapo” na tumutukoy sa halaman",
+        history: "Isa sa mga malalaking bayan sa Nueva Ecija na may maunlad na agrikultura.",
+        festival: "Town Fiesta",
+        spots: "Church — Cuyapo • Town Proper",
+        products: "Bigas • Gulay • Mais"
+      },
+
+      gabaldon: {
+        title: "Gabaldon",
+        subtitle: "Eco-Tourism Destination",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay Teodoro Gabaldon",
+        history: "Kilalang bayan sa paanan ng Sierra Madre at mayaman sa likas na yaman.",
+        festival: "Town Fiesta",
+        spots: "Sabani Estate — Gabaldon • Sierra Madre Trails",
+        products: "Prutas • Gulay • Forest products"
+      },
+
+      gmn: {
+        title: "General Mamerto Natividad",
+        subtitle: "Historical Municipality",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay Gen. Mamerto Natividad",
+        history: "Isa sa mga bayan na may mahalagang papel noong panahon ng rebolusyon.",
+        festival: "Town Fiesta",
+        spots: "Historical Sites — GMN • Nature Areas",
+        products: "Bigas • Gulay"
+      },
+
+      gtinio: {
+        title: "General Tinio",
+        subtitle: "Minalungao Haven",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay Gen. Manuel Tinio",
+        history: "Kilalang bayan dahil sa Minalungao National Park.",
+        festival: "Town Fiesta",
+        spots: "Minalungao National Park — General Tinio",
+        products: "Tourism • Local products"
+      },
+
+      guimba: {
+        title: "Guimba",
+        subtitle: "Religious Center",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang “gimba”",
+        history: "Isa sa mga lumang bayan sa lalawigan at kilala sa Simbahan ng Divine Mercy.",
+        festival: "Ragragsak Ti Guimba Festival",
+        spots: "Divine Mercy Shrine — Guimba",
+        products: "Bigas • Gulay"
+      },
+
+      jaen: {
+        title: "Jaen",
+        subtitle: "Rice Producing Town",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan sa Jaen, Spain",
+        history: "Isa sa mga pangunahing agricultural towns ng Nueva Ecija.",
+        festival: "Town Fiesta",
+        spots: "Church — Jaen • Fields",
+        products: "Bigas • Mais"
+      },
+
+      laur: {
+        title: "Laur",
+        subtitle: "Home of Fort Magsaysay",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan sa lugar sa Spain",
+        history: "Kilalang bayan dahil sa Fort Magsaysay at military training areas.",
+        festival: "Town Fiesta",
+        spots: "Fort Magsaysay — Laur",
+        products: "Agricultural products"
+      },
+
+      licab: {
+        title: "Licab",
+        subtitle: "Small but Progressive",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang “licab”",
+        history: "Isa sa pinakamaliit na bayan ngunit aktibo sa agrikultura.",
+        festival: "Town Fiesta",
+        spots: "Town Proper — Licab",
+        products: "Bigas • Gulay"
+      },
+
+      llanera: {
+        title: "Llanera",
+        subtitle: "Agricultural Municipality",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan sa Llanera, Spain",
+        history: "Kilalang bayan sa gitnang bahagi ng Nueva Ecija.",
+        festival: "Town Fiesta",
+        spots: "Fields — Llanera",
+        products: "Bigas • Gulay"
+      },
+
+      lupao: {
+        title: "Lupao",
+        subtitle: "Northern Gateway",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang Ilocano",
+        history: "Isa sa mga bayan sa hilaga ng lalawigan.",
+        festival: "Town Fiesta",
+        spots: "Town Proper — Lupao",
+        products: "Bigas • Mais"
+      },
+
+      nampicuan: {
+        title: "Nampicuan",
+        subtitle: "Small Municipality",
+        facts: "Pinagmulan ng Pangalan: Mula sa lokal na salita",
+        history: "Isa sa pinakamaliit na bayan sa Nueva Ecija.",
+        festival: "Town Fiesta",
+        spots: "Town Proper — Nampicuan",
+        products: "Bigas • Gulay"
+      },
+
+      pantabangan: {
+        title: "Pantabangan",
+        subtitle: "Home of Pantabangan Dam",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang “tabang”",
+        history: "Kilalang bayan dahil sa Pantabangan Dam na mahalaga sa irigasyon.",
+        festival: "Town Fiesta",
+        spots: "Pantabangan Dam — Pantabangan",
+        products: "Isda • Bigas"
+      },
+
+      penaranda: {
+        title: "Peñaranda",
+        subtitle: "Historic Town",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay José Peñaranda",
+        history: "Isa sa mga lumang bayan sa Nueva Ecija.",
+        festival: "Town Fiesta",
+        spots: "Church — Peñaranda",
+        products: "Bigas • Gulay"
+      },
+
+      quezon: {
+        title: "Quezon",
+        subtitle: "Agricultural Town",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay Manuel L. Quezon",
+        history: "Isang tahimik na bayan na nakatuon sa agrikultura.",
+        festival: "Town Fiesta",
+        spots: "Town Proper — Quezon",
+        products: "Bigas • Gulay"
+      },
+
+      rizal: {
+        title: "Rizal",
+        subtitle: "Named after the National Hero",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay Dr. Jose Rizal",
+        history: "Isang maliit ngunit makasaysayang bayan.",
+        festival: "Town Fiesta",
+        spots: "Town Proper — Rizal",
+        products: "Bigas • Gulay"
+      },
+
+      nesan_antonio: {
+        title: "San Antonio",
+        subtitle: "Growing Municipality",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay San Antonio",
+        history: "Isa sa mga bayan na patuloy ang pag-unlad.",
+        festival: "Town Fiesta",
+        spots: "Church — San Antonio",
+        products: "Bigas • Gulay"
+      },
+
+      nesan_isidro: {
+        title: "San Isidro",
+        subtitle: "Rice Producing Town",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay San Isidro Labrador",
+        history: "Kilalang agricultural town sa Nueva Ecija.",
+        festival: "Town Fiesta",
+        spots: "Fields — San Isidro",
+        products: "Bigas • Gulay"
+      },
+
+      san_leonardo: {
+        title: "San Leonardo",
+        subtitle: "Progressive Municipality",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay San Leonardo",
+        history: "Isang maunlad na bayan sa lalawigan.",
+        festival: "Town Fiesta",
+        spots: "Town Proper — San Leonardo",
+        products: "Bigas • Gulay"
+      },
+
+      santa_rosa: {
+        title: "Santa Rosa",
+        subtitle: "Agricultural Municipality",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay Santa Rosa",
+        history: "Kilalang bayan sa pagsasaka.",
+        festival: "Town Fiesta",
+        spots: "Fields — Santa Rosa",
+        products: "Bigas • Gulay"
+      },
+
+      santo_domingo: {
+        title: "Santo Domingo",
+        subtitle: "Central Municipality",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay Santo Domingo",
+        history: "Isa sa mga bayan sa gitnang bahagi ng lalawigan.",
+        festival: "Town Fiesta",
+        spots: "Church — Santo Domingo",
+        products: "Bigas • Gulay"
+      },
+
+      talavera: {
+        title: "Talavera",
+        subtitle: "Agricultural Hub",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan sa Talavera, Spain",
+        history: "Isa sa pinakamalaking agricultural towns sa Nueva Ecija.",
+        festival: "Town Fiesta",
+        spots: "Fields — Talavera",
+        products: "Bigas • Gulay"
+      },
+
+      talugtug: {
+        title: "Talugtug",
+        subtitle: "Northern Town",
+        facts: "Pinagmulan ng Pangalan: Mula sa lokal na salita",
+        history: "Isang bayan sa hilagang bahagi ng lalawigan.",
+        festival: "Town Fiesta",
+        spots: "Town Proper — Talugtug",
+        products: "Bigas • Gulay"
+      },
+
+      zaragoza: {
+        title: "Zaragoza",
+        subtitle: "Historic Municipality",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan sa Zaragoza, Spain",
+        history: "Isa sa mga lumang bayan sa Nueva Ecija.",
+        festival: "Town Fiesta",
+        spots: "Church — Zaragoza",
+        products: "Bigas • Gulay"
+      },
+      
+      // TARLAC LAYER
+      tarlac_city: {
+        title: "Tarlac City",
+        subtitle: "Melting Pot of Central Luzon",
+        facts: "Pinagmulan ng Pangalan: Mula sa damong “talahib” na sagana noon sa lugar",
+        history: "Ang kabisera ng Tarlac at sentro ng kalakalan. Naging lungsod noong 1998 at kilala sa pinaghalong kultura ng Kapampangan, Ilocano, at Pangasinense.",
+        festival: "Malen Tarlac Festival",
+        spots: "Kart City — Tarlac City • Aquino Center — Luisita • TSU Campus — City Proper",
+        products: "Chicharon • Kakanin • Rice Products"
+      },
+
+      anao: {
+        title: "Anao",
+        subtitle: "Agri-Tourism Town",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang lokal na tumutukoy sa lupaing agrikultural",
+        history: "Isang maliit ngunit progresibong bayan na nakatuon sa agri-tourism at sustainable farming.",
+        festival: "Kalaykay Festival",
+        spots: "Anao Eco Park — Anao • Demo Farms",
+        products: "Bigas • Gulay • Organic Products"
+      },
+
+      bamban: {
+        title: "Bamban",
+        subtitle: "Gateway to Mt. Pinatubo",
+        facts: "Pinagmulan ng Pangalan: Mula sa halamang “bamban”",
+        history: "Kilala bilang jump-off point papuntang Mt. Pinatubo at tahanan ng iba’t ibang kultura.",
+        festival: "Bamban Festival",
+        spots: "Mt. Pinatubo Trek — Bamban • Hot Springs",
+        products: "Uling • Native Products"
+      },
+
+      camiling: {
+        title: "Camiling",
+        subtitle: "Heritage Town",
+        facts: "Pinagmulan ng Pangalan: Mula sa pangalan ng isang lider noong unang panahon",
+        history: "Isa sa pinakamatandang bayan sa Tarlac na mayaman sa kasaysayan at kultura.",
+        festival: "Iniruban Festival",
+        spots: "St. Michael Church — Camiling • Heritage Houses",
+        products: "Iniruban • Rice Delicacies"
+      },
+
+      capas: {
+        title: "Capas",
+        subtitle: "Historical Landmark Town",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang Kapampangan na tumutukoy sa puno",
+        history: "Kilalang lugar ng Capas National Shrine at bahagi ng Death March noong WWII.",
+        festival: "Capas Day",
+        spots: "Capas National Shrine — Capas • Mt. Pinatubo Trails",
+        products: "Rice Products • Local Goods"
+      },
+
+      concepcion: {
+        title: "Concepcion",
+        subtitle: "Historic Municipality",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan sa Immaculate Conception",
+        history: "Isang mahalagang bayan sa kasaysayan ng Tarlac at lugar ng mga kilalang pamilya.",
+        festival: "Town Fiesta",
+        spots: "Church — Concepcion • Fields",
+        products: "Bigas • Gulay"
+      },
+
+      gerona: {
+        title: "Gerona",
+        subtitle: "Agricultural Municipality",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan sa Gerona, Spain",
+        history: "Isang bayan na kilala sa agrikultura at simpleng pamumuhay.",
+        festival: "Town Fiesta",
+        spots: "Town Proper — Gerona",
+        products: "Bigas • Gulay"
+      },
+
+      la_paz: {
+        title: "La Paz",
+        subtitle: "Peaceful Municipality",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang “kapayapaan”",
+        history: "Tahimik at agrikultural na bayan sa Tarlac.",
+        festival: "Town Fiesta",
+        spots: "Fields — La Paz",
+        products: "Bigas • Gulay"
+      },
+
+      mayantoc: {
+        title: "Mayantoc",
+        subtitle: "Western Mountain Town",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang lokal na tumutukoy sa bundok",
+        history: "Matatagpuan sa kanlurang bahagi ng Tarlac at mayaman sa likas na yaman.",
+        festival: "Town Fiesta",
+        spots: "Mountains — Mayantoc",
+        products: "Kahoy • Agricultural products"
+      },
+
+      moncada: {
+        title: "Moncada",
+        subtitle: "Northern Gateway",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay Heneral Emilio Moncada",
+        history: "Isa sa mga bayan sa hilagang bahagi ng Tarlac na mahalaga sa transportasyon.",
+        festival: "Town Fiesta",
+        spots: "Town Proper — Moncada",
+        products: "Bigas • Gulay"
+      },
+
+      paniqui: {
+        title: "Paniqui",
+        subtitle: "Historic Town",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang “paniki”",
+        history: "Kilalang bayan bilang lugar ng kapanganakan ni dating Pangulong Cory Aquino.",
+        festival: "Town Fiesta",
+        spots: "Aquino Ancestral House — Paniqui",
+        products: "Bigas • Gulay"
+      },
+
+      pura: {
+        title: "Pura",
+        subtitle: "Agricultural Municipality",
+        facts: "Pinagmulan ng Pangalan: Mula sa salitang Kastila na nangangahulugang “dalisay”",
+        history: "Isang maliit ngunit aktibong bayan sa agrikultura.",
+        festival: "Town Fiesta",
+        spots: "Town Proper — Pura",
+        products: "Bigas • Gulay"
+      },
+
+      ramos: {
+        title: "Ramos",
+        subtitle: "Named after a Hero",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay Fidel V. Ramos",
+        history: "Isang bayan na patuloy ang pag-unlad sa agrikultura.",
+        festival: "Town Fiesta",
+        spots: "Fields — Ramos",
+        products: "Bigas • Gulay"
+      },
+
+      san_clemente: {
+        title: "San Clemente",
+        subtitle: "Small Municipality",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay San Clemente",
+        history: "Isa sa pinakamaliit na bayan sa Tarlac.",
+        festival: "Town Fiesta",
+        spots: "Town Proper — San Clemente",
+        products: "Bigas • Gulay"
+      },
+
+      tarsan_jose: {
+        title: "San Jose",
+        subtitle: "Growing Municipality",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay San Jose",
+        history: "Isang bayan na patuloy ang pag-unlad sa agrikultura.",
+        festival: "Town Fiesta",
+        spots: "Fields — San Jose",
+        products: "Bigas • Gulay"
+      },
+
+      san_manuel: {
+        title: "San Manuel",
+        subtitle: "Northern Town",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay San Manuel",
+        history: "Isang bayan sa hilagang bahagi ng Tarlac.",
+        festival: "Town Fiesta",
+        spots: "Town Proper — San Manuel",
+        products: "Bigas • Gulay"
+      },
+
+      santa_ignacia: {
+        title: "Santa Ignacia",
+        subtitle: "Historic Municipality",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay Santa Ignacia",
+        history: "Isang bayan na may mahalagang kasaysayan sa Tarlac.",
+        festival: "Town Fiesta",
+        spots: "Church — Santa Ignacia",
+        products: "Bigas • Gulay"
+      },
+
+      victoria: {
+        title: "Victoria",
+        subtitle: "Agricultural Town",
+        facts: "Pinagmulan ng Pangalan: Ipinangalan kay Reyna Victoria",
+        history: "Isang bayan na nakatuon sa agrikultura at lokal na produksyon.",
+        festival: "Town Fiesta",
+        spots: "Fields — Victoria",
+        products: "Bigas • Gulay"
+      },
+      
+      // PAMPANGA LAYER
+      angeles: {
+        title: "Angeles City",
+        subtitle: "Entertainment Capital of Central Luzon",
+        facts: "Uri: Lungsod • Independent city",
+        history: "Dating base ng US military (Clark Air Base).",
+        spots: "Clark Freeport • Walking Street",
+        festival: "Tigtigan Terakan Keng Dalan",
+        products: "Sisig • Kapampangan cuisine"
+      },
+
+      san_fernando: {
+        title: "San Fernando City",
+        subtitle: "Christmas Capital of the Philippines",
+        facts: "Uri: Lungsod • Kabisera ng Pampanga",
+        history: "Sentro ng Giant Lantern Festival.",
+        spots: "San Fernando Cathedral",
+        festival: "Giant Lantern Festival",
+        products: "Parol • Lanterns"
+      },
+
+      mabalacat: {
+        title: "Mabalacat City",
+        subtitle: "Gateway to Clark",
+        facts: "Uri: Lungsod • Malapit sa Clark",
+        history: "Lumago dahil sa Clark Freeport Zone.",
+        spots: "Clark Airport",
+        festival: "Town Fiesta",
+        products: "Local goods"
+      },
+
+      apalit: {
+        title: "Apalit",
+        subtitle: "Religious Municipality",
+        facts: "Uri: Bayan • Kilala sa simbahan",
+        history: "Sentro ng debosyon sa Apung Iru.",
+        spots: "Apalit Church",
+        festival: "Apung Iru Festival",
+        products: "Local delicacies"
+      },
+
+      arayat: {
+        title: "Arayat",
+        subtitle: "Home of Mt. Arayat",
+        facts: "Uri: Bayan • Kilala sa bundok",
+        history: "Tanyag sa Mt. Arayat na isang landmark.",
+        spots: "Mt. Arayat National Park",
+        festival: "Town Fiesta",
+        products: "Agricultural products"
+      },
+
+      bacolor: {
+        title: "Bacolor",
+        subtitle: "Buried Church Town",
+        facts: "Uri: Bayan • Natabunan ng lahar",
+        history: "Nalubog sa lahar mula sa Mt. Pinatubo eruption.",
+        spots: "San Guillermo Church",
+        festival: "Town Fiesta",
+        products: "Local goods"
+      },
+
+      candaba: {
+        title: "Candaba",
+        subtitle: "Bird Sanctuary of Pampanga",
+        facts: "Uri: Bayan • Wetlands",
+        history: "Kilala sa migratory birds.",
+        spots: "Candaba Swamp",
+        festival: "Bird Festival",
+        products: "Rice • Fish"
+      },
+
+      floridablanca: {
+        title: "Floridablanca",
+        subtitle: "Agricultural Town",
+        facts: "Uri: Bayan • Malawak ang sakahan",
+        history: "Isang rural municipality.",
+        spots: "Fields",
+        festival: "Town Fiesta",
+        products: "Rice • Sugarcane"
+      },
+
+      guagua: {
+        title: "Guagua",
+        subtitle: "Culinary Heritage Town",
+        facts: "Uri: Bayan • Kilala sa pagkain",
+        history: "Sentro ng Kapampangan cuisine.",
+        spots: "Heritage houses",
+        festival: "Town Fiesta",
+        products: "Betute • Tamales"
+      },
+
+      lubao: {
+        title: "Lubao",
+        subtitle: "Birthplace of President Arroyo",
+        facts: "Uri: Bayan • Makasaysayang lugar",
+        history: "Pinagmulan ng dating pangulo.",
+        spots: "Lubao Bamboo Hub",
+        festival: "Town Fiesta",
+        products: "Bamboo products"
+      },
+
+      macabebe: {
+        title: "Macabebe",
+        subtitle: "Fishing Town",
+        facts: "Uri: Bayan • Coastal area",
+        history: "Kilalang pangingisda.",
+        spots: "River areas",
+        festival: "Town Fiesta",
+        products: "Seafood"
+      },
+
+      magalang: {
+        title: "Magalang",
+        subtitle: "Agro-Industrial Town",
+        facts: "Uri: Bayan • Malapit sa bundok",
+        history: "Malapit sa Mt. Arayat.",
+        spots: "Farms",
+        festival: "Town Fiesta",
+        products: "Agriculture"
+      },
+
+      masantol: {
+        title: "Masantol",
+        subtitle: "Fishing Community",
+        facts: "Uri: Bayan • Malapit sa dagat",
+        history: "Isang fishing village.",
+        spots: "Coastal areas",
+        festival: "Town Fiesta",
+        products: "Fish"
+      },
+
+      mexico: {
+        title: "Mexico",
+        subtitle: "Historic Municipality",
+        facts: "Uri: Bayan • Makasaysayan",
+        history: "Isa sa mga lumang bayan ng Pampanga.",
+        spots: "Church",
+        festival: "Town Fiesta",
+        products: "Local goods"
+      },
+
+      minalin: {
+        title: "Minalin",
+        subtitle: "Heritage Town",
+        facts: "Uri: Bayan • Old churches",
+        history: "May makasaysayang simbahan.",
+        spots: "Minalin Church",
+        festival: "Town Fiesta",
+        products: "Local goods"
+      },
+
+      porac: {
+        title: "Porac",
+        subtitle: "Adventure Town",
+        facts: "Uri: Bayan • Malapit sa Pinatubo",
+        history: "Kilalang jump-off sa Mt. Pinatubo.",
+        spots: "Sandbox • Trails",
+        festival: "Town Fiesta",
+        products: "Tourism"
+      },
+
+      sasmuan: {
+        title: "Sasmuan",
+        subtitle: "Small Coastal Town",
+        facts: "Uri: Bayan • Tahimik",
+        history: "Dating tinawag na Sexmoan.",
+        spots: "Coastal areas",
+        festival: "Town Fiesta",
+        products: "Fish"
+      },
+
+      santa_ana: {
+        title: "Santa Ana",
+        subtitle: "Agricultural Town",
+        facts: "Uri: Bayan",
+        history: "Isang rural municipality.",
+        spots: "Fields",
+        festival: "Town Fiesta",
+        products: "Rice"
+      },
+
+      santo_tomas: {
+        title: "Santo Tomas",
+        subtitle: "Growing Municipality",
+        facts: "Uri: Bayan",
+        history: "Lumalagong bayan sa Pampanga.",
+        spots: "Town areas",
+        festival: "Town Fiesta",
+        products: "Local goods"
+      },
+
+      // ZAMBALES LAYER
+      olongapo: {
+        title: "Olongapo City",
+        subtitle: "Gateway to Subic",
+        facts: "Uri: Lungsod • Independent city",
+        history: "Dating US Naval Base area.",
+        spots: "Subic Bay • Boardwalk",
+        festival: "Mango Festival",
+        products: "Tourism"
+      },
+
+      botolan: {
+        title: "Botolan",
+        subtitle: "Largest Town of Zambales",
+        facts: "Uri: Bayan",
+        history: "May malawak na lupain at coastal areas.",
+        spots: "Beaches • Mt. Pinatubo trails",
+        festival: "Dinamulag Festival",
+        products: "Carabao products"
+      },
+
+      cabangan: {
+        title: "Cabangan",
+        subtitle: "Beach Town",
+        facts: "Uri: Bayan",
+        history: "Kilala sa long beaches.",
+        spots: "Cabangan Beach",
+        festival: "Town Fiesta",
+        products: "Fish"
+      },
+
+      candelaria: {
+        title: "Candelaria",
+        subtitle: "Gateway to Northern Zambales",
+        facts: "Uri: Bayan",
+        history: "Entry point sa hilagang Zambales.",
+        spots: "Beaches",
+        festival: "Town Fiesta",
+        products: "Fish"
+      },
+
+      castillejos: {
+        title: "Castillejos",
+        subtitle: "Industrial Town",
+        facts: "Uri: Bayan",
+        history: "Lumalaki bilang industrial area.",
+        spots: "Eco Park",
+        festival: "Town Fiesta",
+        products: "Industrial goods"
+      },
+
+      iba: {
+        title: "Iba",
+        subtitle: "Capital of Zambales",
+        facts: "Uri: Bayan • Kabisera",
+        history: "Sentro ng pamahalaan.",
+        spots: "Beach • Capitol",
+        festival: "Mango Festival",
+        products: "Mangoes"
+      },
+
+      masinloc: {
+        title: "Masinloc",
+        subtitle: "Fishing Town",
+        facts: "Uri: Bayan",
+        history: "Kilala sa pangingisda.",
+        spots: "San Salvador Island",
+        festival: "Town Fiesta",
+        products: "Fish"
+      },
+
+      palauig: {
+        title: "Palauig",
+        subtitle: "Home of Cape Bolinao",
+        facts: "Uri: Bayan",
+        history: "Kilalang coastal town.",
+        spots: "Islands • Beaches",
+        festival: "Town Fiesta",
+        products: "Fish"
+      },
+
+      zamsan_antonio: {
+        title: "San Antonio",
+        subtitle: "Surfing and Island Destination",
+        facts: "Uri: Bayan",
+        history: "Kilalang tourist spot.",
+        spots: "Anawangin Cove • Capones Island",
+        festival: "Town Fiesta",
+        products: "Tourism"
+      },
+
+      san_felipe: {
+        title: "San Felipe",
+        subtitle: "Surfing Capital of Zambales",
+        facts: "Uri: Bayan",
+        history: "Tanyag sa surfing.",
+        spots: "Liwa Beach",
+        festival: "Town Fiesta",
+        products: "Tourism"
+      },
+
+      san_marcelino: {
+        title: "San Marcelino",
+        subtitle: "Gateway to Mt. Pinatubo",
+        facts: "Uri: Bayan",
+        history: "Jump-off point sa bundok.",
+        spots: "Mountains",
+        festival: "Town Fiesta",
+        products: "Agriculture"
+      },
+
+      santa_cruz: {
+        title: "Santa Cruz",
+        subtitle: "Northernmost Town",
+        facts: "Uri: Bayan",
+        history: "Pinakahilagang bayan.",
+        spots: "Beaches",
+        festival: "Town Fiesta",
+        products: "Fish"
+      },
+
+      subic: {
+        title: "Subic",
+        subtitle: "Freeport Gateway",
+        facts: "Uri: Bayan",
+        history: "Malapit sa Subic Bay Freeport.",
+        spots: "Beaches",
+        festival: "Town Fiesta",
+        products: "Tourism"
+      }
+    }
+
+    const provinceLogos = {
+      aurora: "aurora.png",
+      bataan: "bataan.png",
+      bulacan: "bulacan.png",
+      nueva_ecija: "nueva_ecija.png",
+      pampanga: "pampanga.png",
+      tarlac: "tarlac.png",
+      zambales: "zambales.png"
+    };
+
+    const municipalityLogos = {
+      // AURORA
+      baler: "logo/baler.png",
+      casiguran: "logo/casiguran.png",
+      dilasag: "logo/dilasag.jpg",
+      dinalungan: "logo/dinalungan.jpg",
+      dingalan: "logo/dingalan.png",
+      maria_aurora: "logo/maria_aurora.png",
+      san_luis: "logo/san_luis.png",
+
+      // BATAAN
+      balanga: "logo/balanga.png",
+      abucay: "logo/abucay.png",
+      bagac: "logo/bagac.png",
+      dinalupihan: "logo/dinalupihan.jpg",
+      hermosa: "logo/hermosa.jpg",
+      limay: "logo/limay.png",
+      mariveles: "logo/mariveles.png",
+      morong: "logo/morong.png",
+      orani: "logo/orani.png",
+      orion: "logo/orion.png",
+      pilar: "logo/pilar.jpg",
+      samal: "logo/samal.png",
+
+      // BULACAN
+      malolos: "logo/malolos.png",
+      meycauayan: "logo/meycauayan.png",
+      san_jose_del_monte: "logo/san_jose_del_monte.png",
+      angat: "logo/angat.png",
+      balagtas: "logo/balagtas.png",
+      baliuag: "logo/baliuag.png",
+      bocaue: "logo/bocaue.jpg",
+      bulakan: "logo/bulakan.png",
+      bustos: "logo/bustos.png",
+      calumpit: "logo/calumpit.png",
+      dona_remedios_trinidad: "logo/dona_remedios_trinidad.png",
+      guiguinto: "logo/guiguinto.png",
+      hagonoy: "logo/hagonoy.png",
+      marilao: "logo/marilao.png",
+      norzagaray: "logo/norzagaray.png",
+      obando: "logo/obando.png",
+      pandi: "logo/pandi.png",
+      paombong: "logo/paombong.png",
+      plaridel: "logo/plaridel.jpg",
+      pulilan: "logo/pulilan.png",
+      san_ildefonso: "logo/san_ildefonso.png",
+      san_miguel: "logo/san_miguel.png",
+      san_rafael: "logo/san_rafael.png",
+      santa_maria: "logo/santa_maria.png",
+      santa_rita: "logo/santa_rita.jpg",
+
+      // NUEVA ECIJA
+      cabanatuan: "logo/cabanatuan.jpg",
+      gapan: "logo/gapan.png",
+      palayan: "logo/palayan.jpg",
+      nesan_jose: "logo/nesan_jose.png",
+      munoz: "logo/munoz.png",
+      aliaga: "logo/aliaga.png",
+      bongabon: "logo/bongabon.png",
+      cabiao: "logo/cabiao.png",
+      carranglan: "logo/carranglan.png",
+      cuyapo: "logo/cuyapo.png",
+      gabaldon: "logo/gabaldon.jpg",
+      gmn: "logo/gmn.png",
+      gtinio: "logo/gtinio.png",
+      guimba: "logo/guimba.png",
+      jaen: "logo/jaen.png",
+      laur: "logo/laur.jpg",
+      licab: "logo/licab.png",
+      llanera: "logo/llanera.png",
+      lupao: "logo/lupao.jpg",
+      nampicuan: "logo/nampicuan.png",
+      pantabangan: "logo/pantabangan.jpg",
+      penaranda: "logo/penaranda.png",
+      quezon: "logo/quezon.png",
+      rizal: "logo/rizal.jpg",
+      nesan_antonio: "logo/nesan_antonio.png",
+      sanisidro: "logo/san_isidro.png",
+      san_leonardo: "logo/san_leonardo.png",
+      santa_rosa: "logo/santa_rosa.png",
+      santo_domingo: "logo/santo_domingo.png",
+      talavera: "logo/talavera.jpg",
+      talugtug: "logo/talugtug.jpg",
+      zaragoza: "logo/zaragoza.png",
+
+      // PAMPANGA
+      angeles: "logo/angeles.png",
+      san_fernando: "logo/san_fernando.png",
+      mabalacat: "logo/mabalacat.png",
+      apalit: "logo/apalit.png",
+      arayat: "logo/arayat.png",
+      bacolor: "logo/bacolor.png",
+      candaba: "logo/candaba.jpg",
+      floridablanca: "logo/floridablanca.jpg",
+      guagua: "logo/guagua.png",
+      lubao: "logo/lubao.png",
+      macabebe: "logo/macabebe.jpg",
+      magalang: "logo/magalang.jpg",
+      masantol: "logo/masantol.png",
+      mexico: "logo/mexico.png",
+      minalin: "logo/minalin.jpg",
+      porac: "logo/porac.png",
+      sasmuan: "logo/sasmuan.jpg",
+      santa_ana: "logo/santa_ana.png",
+      santo_tomas: "logo/santo_tomas.jpg",
+
+      // TARLAC
+      tarlac_city: "logo/tarlac_city.png",
+      anao: "logo/anao.jpg",
+      bamban: "logo/bamban.png",
+      camiling: "logo/camiling.png",
+      capas: "logo/capas.jpg",
+      concepcion: "logo/concepcion.png",
+      gerona: "logo/gerona.png",
+      la_paz: "logo/la_paz.png",
+      mayantoc: "logo/mayantoc.png",
+      moncada: "logo/moncada.jpg",
+      paniqui: "logo/paniqui.jpg",
+      pura: "logo/pura.png",
+      ramos: "logo/ramos.jpg",
+      san_clemente: "logo/san_clemente.png",
+      tarsan_jose: "logo/tarsan_jose.jpg",
+      san_manuel: "logo/san_manuel.png",
+      santa_ignacia: "logo/santa_ignacia.png",
+      victoria: "logo/victoria.png",
+
+      // ZAMBALES
+      olongapo: "logo/olongapo.png",
+      botolan: "logo/botolan.png",
+      cabangan: "logo/cabangan.png",
+      candelaria: "logo/candelaria.png",
+      castillejos: "logo/castillejos.png",
+      iba: "logo/iba.jpg",
+      masinloc: "logo/masinloc.png",
+      palauig: "logo/palauig.png",
+      zamsan_antonio: "logo/zamsan_antonio.png",
+      san_felipe: "logo/san_felipe.png",
+      san_marcelino: "logo/san_marcelino.png",
+      santa_cruz: "logo/santa_cruz.png",
+      subic: "logo/subic.jpg"
+    };
+    function getPlaceLogo(type, key) {
+      if (type === "province") {
+        return provinceLogos[key] || "";
+      }
+      return municipalityLogos[key] || "";
+    }
+
+    function hideAllMunicipalityLayers() {
+      document.querySelectorAll(".municipality-layer").forEach(layer => {
+        layer.classList.remove("show");
+      });
+    }
+
+    function updateInfoPanel(data, themeClass = "", type = "") {
+      const infoView = document.getElementById("infoView");
+      const section1Title = document.getElementById("section1Title");
+      const section2Title = document.getElementById("section2Title");
+      const section3Title = document.getElementById("section3Title");
+      const section4Title = document.getElementById("section4Title");
+      const section5Title = document.getElementById("section5Title");
+      const modalRight = document.getElementById("modalRight");
+      const placeLogo = document.getElementById("placeLogo");
+
+      if (!infoView) return;
+
+      if (type === "province") {
+        section1Title.textContent = "Wika at Diyalekto";
+        section2Title.textContent = "Mga Bayani";
+        section3Title.textContent = "Pinagmulan ng Pangalan ng Lalawigan";
+        section4Title.textContent = "Maikling Kasaysayan";
+        section5Title.textContent = "Pangunahing Hanapbuhay";
+      } 
+      
+      else {
+        section1Title.textContent = "Pinagmulan ng Lugar (Taon / Pangalan)";
+        section2Title.textContent = "Maikling Kasaysayan";
+        section3Title.textContent = "Mga Pista at Pagdiriwang";
+        section4Title.textContent = "Mga Pasyalan / Tourist Spots";
+        section5Title.textContent = "Sikat na Lokal na Produkto / Pagkain";
+      }
+
+      infoView.classList.add("changing");
+
+      setTimeout(() => {
+        document.getElementById("placeTitle").textContent = data.title || "";
+        document.getElementById("placeSubtitle").textContent = data.subtitle || "";
+
+        if (type === "province") {
+          document.getElementById("quickFacts").textContent = data.facts || "";
+          document.getElementById("touristSpots").textContent = data.spots || "";
+          document.getElementById("festivalInfo").textContent = data.festival || "";
+          document.getElementById("historyInfo").textContent = data.history || "";
+          document.getElementById("localProducts").textContent = data.products || "";
+        } else {
+          document.getElementById("quickFacts").textContent = data.facts || "";
+          document.getElementById("touristSpots").textContent = data.history || "";
+          document.getElementById("festivalInfo").textContent = data.festival || "";
+          document.getElementById("historyInfo").textContent = data.spots || "";
+          document.getElementById("localProducts").textContent = data.products || "";
+        }
+
+        const placeKey = type === "province" ? currentProvince : data.key;
+        const logoSrc = getPlaceLogo(type, placeKey);
+
+        if (logoSrc) {
+          placeLogo.src = logoSrc;
+          placeLogo.style.display = "block";
+          placeLogo.onerror = function () {
+            this.style.display = "none";
+          };
+        } else {
+          placeLogo.style.display = "none";
+        }
+
+        modalRight.className = "modal-right " + themeClass;
+        infoView.classList.remove("changing");
+      }, 220);
+    }
+
+    function openProvince(provinceKey) {
+      hideAllMunicipalityLayers();
+
+      const modal = document.getElementById("provinceModal");
+      const provinceImage = document.getElementById("provinceImage");
+
+      let layerId = "";
+
+      if (provinceKey === "nueva_ecija") layerId = "nuevaEcijaLayer";
+      else if (provinceKey === "aurora") layerId = "auroraLayer";
+      else if (provinceKey === "bataan") layerId = "bataanLayer";
+      else if (provinceKey === "bulacan") layerId = "bulacanLayer";
+      else if (provinceKey === "pampanga") layerId = "pampangaLayer";
+      else if (provinceKey === "tarlac") layerId = "tarlacLayer";
+      else if (provinceKey === "zambales") layerId = "zambalesLayer";
+
+      provinceImage.src = provinceData[provinceKey].image;
+      provinceImage.alt = provinceData[provinceKey].title;
+
+      if (layerId) {
+        document.getElementById(layerId).classList.add("show");
+      }
+
+      currentProvince = provinceKey;
+
+      updateInfoPanel(
+        provinceData[provinceKey],
+        getProvinceThemeClass(provinceKey),
+        "province"
+      );
+
+      const backBtn = document.getElementById("backToProvinceBtn");
+      if (backBtn) backBtn.style.display = "none";
+
+      scale = 1;
+      posX = 0;
+      posY = 0;
+      updateTransform();
+
+      modal.classList.add("show");
+
+      const provinceMapContainer = document.getElementById("provinceMapContainer");
+      provinceMapContainer.classList.remove(
+        "province-theme-aurora",
+        "province-theme-bataan",
+        "province-theme-bulacan",
+        "province-theme-nueva",
+        "province-theme-pampanga",
+        "province-theme-tarlac",
+        "province-theme-zambales"
+      );
+
+      provinceMapContainer.classList.add(getProvinceThemeClass(provinceKey));
+    }
+
+      const overlayMap = {
+        aurora: "aurora-overlay",
+        bataan: "bataan-overlay",
+        bulacan: "bulacan-overlay",
+        nueva_ecija: "nueva-overlay",
+        pampanga: "pampanga-overlay",
+        tarlac: "tarlac-overlay",
+        zambales: "zambales-overlay"
+      };
+
+    function openMunicipality(key) {
+      const data = municipalityInfo[key];
+      if (!data) return;
+
+      clearActiveMunicipalityLabel();
+
+      const activeBtn = document.querySelector(`[onclick="openMunicipality('${key}')"]`);
+      if (activeBtn) {
+        activeBtn.classList.add("active-place");
+      }
+
+      updateInfoPanel(
+        { ...data, key: key },
+        getProvinceThemeClass(currentProvince),
+        "municipality"
+      );
+
+      const backBtn = document.getElementById("backToProvinceBtn");
+      if (backBtn) backBtn.style.display = "inline-block";
+    }
+
+    function backToProvince() {
+      if (!currentProvince) return;
+
+      clearActiveMunicipalityLabel();
+
+      updateInfoPanel(
+        provinceData[currentProvince],
+        getProvinceThemeClass(currentProvince),
+        "province"
+      );
+
+      const backBtn = document.getElementById("backToProvinceBtn");
+      if (backBtn) backBtn.style.display = "none";
+    }
+
+    function closeProvince() {
+      clearActiveMunicipalityLabel();
+      document.getElementById("provinceModal").classList.remove("show");
+    }
+
+    function highlightProvince(name) {
+      clearProvinceHighlight();
+      const cls = overlayMap[name];
+      const target = document.querySelector("." + cls);
+      if (target) target.classList.add("active");
+    }
+
+    function bindProvinceHover(selectors, province) {
+      const elements = document.querySelectorAll(selectors);
+      const overlay = document.querySelector(`.${province}-overlay`);
+      const label = document.querySelector(`.${province}-label`);
+      const pin = document.querySelector(`.${province}`);
+
+      elements.forEach(el => {
+        el.addEventListener("mouseenter", () => {
+          overlay.classList.add("active");
+          label.classList.add("active");
+          pin.classList.add("active"); // 🔥 eto bago
+        });
+
+        el.addEventListener("mouseleave", () => {
+          overlay.classList.remove("active");
+          label.classList.remove("active");
+          pin.classList.remove("active"); // 🔥 eto bago
+        });
+      });
+    }
+
+    function clearActiveMunicipalityLabel() {
+      document.querySelectorAll(".map-label").forEach(label => {
+        label.classList.remove("active-place");
+      });
+    }
+
+    function getProvinceThemeClass(provinceKey) {
+      if (provinceKey === "aurora") return "province-theme-aurora";
+      if (provinceKey === "bataan") return "province-theme-bataan";
+      if (provinceKey === "bulacan") return "province-theme-bulacan";
+      if (provinceKey === "nueva_ecija") return "province-theme-nueva";
+      if (provinceKey === "pampanga") return "province-theme-pampanga";
+      if (provinceKey === "tarlac") return "province-theme-tarlac";
+      if (provinceKey === "zambales") return "province-theme-zambales";
+      return "province-theme-nueva";
+    }
+
+      bindProvinceHover(".aurora, .aurora-label, .aurora-logo", "aurora");
+      bindProvinceHover(".bataan, .bataan-label, .bataan-logo", "bataan");
+      bindProvinceHover(".bulacan, .bulacan-label, .bulacan-logo", "bulacan");
+      bindProvinceHover(".nueva, .nueva-label, .nueva-logo", "nueva");
+      bindProvinceHover(".pampanga, .pampanga-label, .pampanga-logo", "pampanga");
+      bindProvinceHover(".tarlac, .tarlac-label, .tarlac-logo", "tarlac");
+      bindProvinceHover(".zambales, .zambales-label, .zambales-logo", "zambales");
+
+      let scale = 1;
+      let posX = 0;
+      let posY = 0;
+      let isDragging = false;
+      let startX, startY;
+
+      const zoomStage = document.getElementById("zoomStage");
+      const container = document.getElementById("provinceMapContainer");
+
+      function updateTransform() {
+        zoomStage.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+      }
+
+      // SCROLL ZOOM
+      container.addEventListener("wheel", (e) => {
+        e.preventDefault();
+
+        const zoomSpeed = 0.1;
+
+        if (e.deltaY < 0) {
+          scale += zoomSpeed;
+        } else {
+          scale -= zoomSpeed;
+        }
+
+        scale = Math.max(1, Math.min(scale, 4)); // limit zoom
+        updateTransform();
+      });
+
+      // DRAG START
+      container.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        startX = e.clientX - posX;
+        startY = e.clientY - posY;
+      });
+
+      // DRAG MOVE
+      window.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+
+        posX = e.clientX - startX;
+        posY = e.clientY - startY;
+
+        updateTransform();
+      });
+
+      // DRAG END
+      window.addEventListener("mouseup", () => {
+        isDragging = false;
+      });
+
+      function zoomIn() {
+        scale = Math.min(scale + 0.2, 4);
+        updateTransform();
+      }
+
+      function zoomOut() {
+        scale = Math.max(scale - 0.2, 1);
+        updateTransform();
+      }
+
+      function resetZoom() {
+        scale = 1;
+        posX = 0;
+        posY = 0;
+        updateTransform();
+      }
+
+</script>
+
+</body>
+</html>
