@@ -14,7 +14,7 @@
       width: 100%;
       height: 100%;
       margin: 0;
-      font-family: "Courier New", Courier, monospace;
+      font-family: "Poppins", Arial, sans-serif;
     }
 
     body {
@@ -49,16 +49,16 @@
 
     /* LEFT PANEL */
     .left-panel {
-      width: clamp(290px, 35%, 540px);
+      width: clamp(290px, 35%, 500px);
       padding: clamp(15px, 2vw, 25px);
       border-radius: 22px;
       background: rgba(255, 255, 255, 0.39);
       backdrop-filter: blur(5px);
       overflow: hidden;
-      margin-top: clamp(140px, 14vw, 190px);
+      margin-top: 200px;
       z-index: 1;
 
-      font-size: clamp(16px, 1.5vw, 23px);
+      font-size: clamp(16px, 1.5vw, 24px);
       font-weight: 700;
       line-height: 1.7;
       text-align: justify;
@@ -78,7 +78,7 @@
     /* LOGOS SA ITAAS */
     .logos {
       position: absolute;
-      top: 30px;
+      top: 90px;
       left: 50%;
       transform: translateX(-50%);
 
@@ -100,12 +100,12 @@
     /* TITLE - IBINABA */
     .brand-header {
       position: absolute;
-      top: 60px;
+      top: 30px;
       left: 10px; /* sagad na */
 
       display: flex;
       align-items: center;
-      gap: clamp(8px, 1.5vw, 16px);
+      gap: clamp(8px, 1.5vw, 20px);
 
       padding-left: 20px; /* maliit na allowance lang */
       z-index: 50;
@@ -141,7 +141,8 @@
     .map-container {
       position: relative;
       width: min(100%, 1150px);
-      margin-top: 200px;
+      min-width: 450px;
+      margin-top: 300px;
       margin-left: 21px;
     }
 
@@ -169,12 +170,12 @@
     .label {
       position: absolute;
       font-size: clamp(13px, 1.5vw, 40px);
-      font-weight: bold;
+      font-weight: 900;
       transform: translate(-50%, 0);
-      transition: 0.2s ease;
+      transition: all 0.2s ease;
       letter-spacing: 1px;
       white-space: nowrap;
-      z-index: 21;
+      z-index: 10;
     }
     
     .label.active {
@@ -228,7 +229,7 @@
         top: 46%; 
         left: 27%; 
     }
-    .tarlac-label{ 
+    .tarlac-label { 
         top: 46.5%; 
         left: 27%; 
       }
@@ -374,6 +375,100 @@
           transition: background 0.2s ease, transform 0.2s ease;
       }
 
+      .guide-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 10001;
+
+        padding: 10px 18px;
+        border: none;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #111;
+        font-family: "Poppins", Arial, sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+        transition: transform 0.2s ease, background 0.2s ease;
+      }
+
+      .guide-btn:hover {
+        transform: translateY(-2px) scale(1.04);
+        background: #ffffff;
+      }
+
+      .guide-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+      }
+
+      .guide-modal.show {
+        display: flex;
+      }
+
+      .guide-box {
+        position: relative;
+        width: min(600px, 92vw);
+        background: #ffffff;
+        border-radius: 22px;
+        padding: 28px 24px 24px;
+        box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+        font-family: "Poppins", Arial, sans-serif;
+      }
+
+      .guide-box h2 {
+        margin: 0 0 10px 0;
+        font-size: clamp(24px, 2vw, 34px);
+        color: #111;
+      }
+
+      .guide-box p {
+        margin: 0 0 18px 0;
+        font-size: 15px;
+        line-height: 1.6;
+        color: #333;
+      }
+
+      .guide-step {
+        background: #f6f6f6;
+        border-left: 5px solid #f0a04b;
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+        font-size: 15px;
+        line-height: 1.6;
+        color: #222;
+      }
+
+      .guide-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        font-size: 22px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s ease, background 0.2s ease;
+      }
+
+      .guide-close:hover {
+        background: #d62828;
+        transform: scale(1.08);
+      }
+
       .close-btn:hover {
         background: #d62828;
         transform: scale(1.08);
@@ -442,11 +537,15 @@
           drop-shadow(0 0 10px rgba(41, 179, 243, 0.65));
       }
 
-      .aurora-label {
+      .aurora-label:hover {
         color: rgb(41, 179, 243);
         text-shadow:
           0 0 4px rgba(41, 179, 243, 0.9),
           0 0 8px rgba(41, 179, 243, 0.6);
+
+        -webkit-text-stroke: 1px black; /* outline */
+        text-stroke: 1px black; /* fallback */
+        z-index: 30;
       }
 
 
@@ -460,11 +559,15 @@
           drop-shadow(0 0 10px rgba(198, 40, 40, 0.65));
       }
 
-      .bataan-label {
+      .bataan-label:hover {
         color: rgb(198, 40, 40);
         text-shadow:
           0 0 4px rgba(198, 40, 40, 0.9),
           0 0 8px rgba(198, 40, 40, 0.6);
+
+        -webkit-text-stroke: 1px black; /* outline */
+        text-stroke: 1px black; /* fallback */
+        z-index: 30;
       }
 
 
@@ -478,11 +581,15 @@
           drop-shadow(0 0 10px rgba(250, 184, 17, 0.65));
       }
 
-      .bulacan-label {
+      .bulacan-label:hover {
         color: rgb(251, 192, 45);
         text-shadow:
           0 0 4px rgba(250, 184, 17, 0.9),
           0 0 8px rgba(250, 184, 17, 0.6);
+
+        -webkit-text-stroke: 1px black; /* outline */
+        text-stroke: 1px black; /* fallback */
+        z-index: 30;
       }
 
 
@@ -496,11 +603,15 @@
           drop-shadow(0 0 10px rgba(56, 142, 60, 0.65));
       }
 
-      .nueva-label {
+      .nueva-label:hover {
         color: rgb(56, 142, 60);
         text-shadow:
           0 0 4px rgba(56, 142, 60, 0.9),
           0 0 8px rgba(56, 142, 60, 0.6);
+
+        -webkit-text-stroke: 1px black; /* outline */
+        text-stroke: 1px black; /* fallback */
+        z-index: 30;
       }
 
 
@@ -514,11 +625,15 @@
           drop-shadow(0 0 10px rgba(142, 36, 170, 0.65));
       }
 
-      .pampanga-label {
+      .pampanga-label:hover {
         color: rgb(142, 36, 170);
         text-shadow:
           0 0 4px rgba(142, 36, 170, 0.9),
           0 0 8px rgba(142, 36, 170, 0.6);
+        
+        -webkit-text-stroke: 1px black; /* outline */
+        text-stroke: 1px black; /* fallback */
+        z-index: 30;
       }
 
 
@@ -532,11 +647,15 @@
           drop-shadow(0 0 10px rgba(251, 140, 0, 0.65));
       }
 
-      .tarlac-label {
+      .tarlac-label:hover {
         color: rgb(251, 140, 0);
         text-shadow:
           0 0 4px rgba(251, 140, 0, 0.9),
           0 0 8px rgba(251, 140, 0, 0.6);
+
+        -webkit-text-stroke: 1px black; /* outline */
+        text-stroke: 1px black; /* fallback */
+        z-index: 30;
       }
 
 
@@ -550,11 +669,23 @@
           drop-shadow(0 0 10px rgba(0, 137, 123, 0.65));
       }
 
-      .zambales-label {
+      .zambales-label:hover {
         color: rgb(0, 137, 123);
         text-shadow:
           0 0 4px rgba(0, 137, 123, 0.9),
           0 0 8px rgba(0, 137, 123, 0.6);
+
+        -webkit-text-stroke: 1px black; /* outline */
+        text-stroke: 1px black; /* fallback */
+        z-index: 30;
+      }
+      
+
+      .label.active {
+        transform: translate(-50%, -3px) scale(1.1);
+        -webkit-text-stroke: 1px black;
+        text-stroke: 1px black;
+        z-index: 30;
       }
 
       /* ================= AURORA ================= */
@@ -613,6 +744,49 @@
           0 0 10px rgba(0, 137, 123, 0.7);
       }
 
+      /* PAG HOVER SA PIN → apektado label */
+      .aurora:hover ~ .aurora-label {
+        color: #4FC3F7;
+        -webkit-text-stroke: 1px black;
+        z-index: 30;
+      }
+
+      .bataan:hover ~ .bataan-label {
+        color: #C62828;
+        -webkit-text-stroke: 1px black;
+        z-index: 30;
+      }
+
+      .bulacan:hover ~ .bulacan-label {
+        color: #FBC02D;
+        -webkit-text-stroke: 1px black;
+        z-index: 30;
+      }
+
+      .nueva:hover ~ .nueva-label {
+        color: #388E3C;
+        -webkit-text-stroke: 1px black;
+        z-index: 30;
+      }
+
+      .pampanga:hover ~ .pampanga-label {
+        color: #8E24AA;
+        -webkit-text-stroke: 1px black;
+        z-index: 30;
+      }
+
+      .tarlac:hover ~ .tarlac-label {
+        color: #FB8C00;
+        -webkit-text-stroke: 1px black;
+        z-index: 30;
+      }
+
+      .zambales:hover ~ .zambales-label {
+        color: #00897B;
+        -webkit-text-stroke: 1px black;
+        z-index: 30;
+      }
+
       .province-overlay {
         position: absolute;
         top: 0;
@@ -623,11 +797,13 @@
         pointer-events: none;
         transform: scale(1);
         transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+        z-index: 15;
       }
 
       .province-overlay.active {
         opacity: 1;
         transform: scale(1.02);
+        z-index: 15;
       }
 
       .aurora-overlay {
@@ -763,7 +939,7 @@
         color: white;
         font-weight: bold;
         font-size: clamp(10px, 0.9vw, 18px);
-        font-family: "Courier New", Courier, monospace;
+        font-family: "Poppins", Arial, sans-serif;
         line-height: 1;
         white-space: nowrap;
         cursor: pointer;
@@ -1248,10 +1424,12 @@
     <img src="logo.png" class="main-logo">
 
     <div class="title">
-      <h1>ClickLash</h1>
+      <h1>ClickFlash</h1>
       <span>One click, One peek!</span>
     </div>
   </div>
+
+  <button class="guide-btn" onclick="openGuide()">Guide</button>
 
     <!-- LEFT TEXT -->
     <div class="left-panel">
@@ -1531,6 +1709,34 @@
             </div>
           </div>
             
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-modal" id="guideModal">
+        <div class="guide-box">
+          <button class="guide-close" onclick="closeGuide()">×</button>
+          <h2>Paano Gamitin ang ClickFlash</h2>
+          <p>Maligayang pagdating! Narito ang maikling gabay upang mas madaling ma-explore ang mapa.</p>
+
+          <div class="guide-step">
+            <strong>1.</strong> I-click ang logo ng lalawigan o ang pangalan nito sa mapa.
+          </div>
+
+          <div class="guide-step">
+            <strong>2.</strong> Lalabas ang mas detalyadong mapa ng napiling lalawigan.
+          </div>
+
+          <div class="guide-step">
+            <strong>3.</strong> I-click ang lungsod o bayan upang makita ang impormasyon nito.
+          </div>
+
+          <div class="guide-step">
+            <strong>4.</strong> Gamitin ang zoom controls upang mas makita nang malinaw ang mapa.
+          </div>
+
+          <div class="guide-step">
+            <strong>5.</strong> Pindutin ang “Back to Province” upang bumalik sa kabuuang detalye ng lalawigan.
           </div>
         </div>
       </div>
@@ -3313,6 +3519,14 @@
         posX = 0;
         posY = 0;
         updateTransform();
+      }
+
+      function openGuide() {
+        document.getElementById("guideModal").classList.add("show");
+      }
+
+      function closeGuide() {
+        document.getElementById("guideModal").classList.remove("show");
       }
 
 </script>
