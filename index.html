@@ -606,7 +606,7 @@
       }
 
       .aurora-label:hover {
-        color: rgba(41, 179, 243,);
+        color: rgba(41, 179, 243, 1);
         text-shadow:
           0 0 4px rgba(41, 179, 243, 0.9),
           0 0 8px rgba(41, 179, 243, 0.6);
@@ -977,10 +977,10 @@
         margin: 0 auto;
         overflow: hidden;
         cursor: grab;
-
         display: flex;
         align-items: center;
         justify-content: center;
+        touch-action: none;
       }
 
       .province-map-container:active {
@@ -1147,62 +1147,6 @@
         font-size: clamp(13px, 1vw, 18px);
         line-height: 1.65;
         text-align: justify;
-      }
-
-      .tooltip-container {
-        position: relative;
-        display: inline-block;
-        cursor: pointer;
-        font-weight: bold;
-      }
-
-      /* TOOLTIP BOX */
-      .tooltip {
-        position: absolute;
-        bottom: 140%;
-        left: 50%;
-        transform: translateX(-50%) scale(0.9);
-        
-        padding: 8px 14px;
-        border-radius: 10px;
-
-        /* GLASS EFFECT */
-        background: rgba(20, 20, 20, 0.75);
-        backdrop-filter: blur(8px);
-
-        color: #fff;
-        font-size: 13px;
-        white-space: nowrap;
-
-        /* GLOW EFFECT */
-        box-shadow:
-          0 0 10px rgba(0, 255, 180, 0.3),
-          0 0 20px rgba(0, 255, 180, 0.2);
-
-        opacity: 0;
-        pointer-events: none;
-
-        transition: all 0.25s ease;
-        z-index: 999;
-      }
-
-      /* ARROW */
-      .tooltip::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        
-        border-width: 6px;
-        border-style: solid;
-        border-color: rgba(20, 20, 20, 0.75) transparent transparent transparent;
-      }
-
-      /* HOVER EFFECT */
-      .tooltip-container:hover .tooltip {
-        opacity: 1;
-        transform: translateX(-50%) scale(1);
       }
 
       /* Aurora theme */
@@ -1482,37 +1426,76 @@
 
       @media (max-width: 768px) {
         body {
-          overflow: auto;
+          overflow-x: hidden;
+          overflow-y: auto;
         }
 
         .container {
           flex-direction: column;
           align-items: center;
           justify-content: flex-start;
-          height: auto;
           width: 100%;
+          height: auto;
+          padding: 12px;
         }
 
         .left-panel {
-          width: min(92%, 620px);
-          max-width: 650px;
-          margin: 140px auto 20px auto;
+          width: min(94vw, 620px);
+          max-width: 94vw;
+          margin: 95px auto 18px auto;
+          font-size: clamp(14px, 3.8vw, 18px);
+          line-height: 1.6;
         }
 
         .main {
-          min-height: 80vh;
           width: 100%;
+          min-height: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          overflow: visible;
         }
 
         .logos {
-          top: 10px;
-          gap: 8px;
+          position: static;
+          top: auto;
+          left: auto;
+          transform: none;
+          width: 100%;
+          margin: 6px auto 14px auto;
+          gap: 10px;
+          justify-content: center;
+          align-items: center;
           flex-wrap: wrap;
+          overflow: visible;
+        }
+
+        .logos img {
+          width: clamp(58px, 18vw, 82px);
+          height: auto;
+          display: block;
         }
 
         .map-container {
-          width: 85%;
-          margin-top: 150px;
+          width: min(94vw, 390px);
+          min-width: 0;
+          margin: 8px auto 0 auto;
+          margin-left: auto;
+        }
+
+        .map {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+
+        .pin img {
+          width: clamp(14px, 4vw, 22px);
+        }
+
+        .label {
+          font-size: clamp(9px, 3vw, 16px);
+          letter-spacing: 0.5px;
         }
 
         .modal-box {
@@ -1546,7 +1529,6 @@
           width: 60px;
           height: 60px;
         }
-
       }
     
   </style>
@@ -1627,178 +1609,171 @@
       <div class="modal" id="provinceModal">
         <div class="modal-box">
           <button class="close-btn" onclick="closeProvince()">×</button>
-
-        <div class="tooltip-container">
-          Nueva Ecija
-          <div class="tooltip">
-            🌾 Rice Granary of the Philippines
-          </div>
-        </div>
         
           <div class="modal-left">
-
+            <div class="province-map-container" id="provinceMapContainer">
               <div class="zoom-stage" id="zoomStage">
                 <img id="provinceImage" src="" alt="Province Map" class="province-map">
 
-              <!-- NUEVA ECIJA LAYER -->
-              <div class="municipality-layer" id="nuevaEcijaLayer">
-                <button class="map-label cabanatuan" onclick="openMunicipality('cabanatuan')">Cabanatuan</button>
-                <button class="map-label gapan" onclick="openMunicipality('gapan')">Gapan</button>
-                <button class="map-label palayan" onclick="openMunicipality('palayan')">Palayan</button>
-                <button class="map-label nesanjose" onclick="openMunicipality('nesan_jose')">San Jose</button>
-                <button class="map-label munoz" onclick="openMunicipality('munoz')">Muñoz</button>
+                <!-- NUEVA ECIJA LAYER -->
+                <div class="municipality-layer" id="nuevaEcijaLayer">
+                  <button class="map-label cabanatuan" onclick="openMunicipality('cabanatuan')">Cabanatuan</button>
+                  <button class="map-label gapan" onclick="openMunicipality('gapan')">Gapan</button>
+                  <button class="map-label palayan" onclick="openMunicipality('palayan')">Palayan</button>
+                  <button class="map-label nesanjose" onclick="openMunicipality('nesan_jose')">San Jose</button>
+                  <button class="map-label munoz" onclick="openMunicipality('munoz')">Muñoz</button>
 
-                <button class="map-label aliaga" onclick="openMunicipality('aliaga')">Aliaga</button>
-                <button class="map-label bongabon" onclick="openMunicipality('bongabon')">Bongabon</button>
-                <button class="map-label cabiao" onclick="openMunicipality('cabiao')">Cabiao</button>
-                <button class="map-label carranglan" onclick="openMunicipality('carranglan')">Carranglan</button>
-                <button class="map-label cuyapo" onclick="openMunicipality('cuyapo')">Cuyapo</button>
-                <button class="map-label gabaldon" onclick="openMunicipality('gabaldon')">Gabaldon</button>
-                <button class="map-label gmn" onclick="openMunicipality('gmn')">Gen. Natividad</button>
-                <button class="map-label gtinio" onclick="openMunicipality('gtinio')">Gen. Tinio</button>
-                <button class="map-label guimba" onclick="openMunicipality('guimba')">Guimba</button>
-                <button class="map-label jaen" onclick="openMunicipality('jaen')">Jaen</button>
-                <button class="map-label laur" onclick="openMunicipality('laur')">Laur</button>
-                <button class="map-label licab" onclick="openMunicipality('licab')">Licab</button>
-                <button class="map-label llanera" onclick="openMunicipality('llanera')">Llanera</button>
-                <button class="map-label lupao" onclick="openMunicipality('lupao')">Lupao</button>
-                <button class="map-label nampicuan" onclick="openMunicipality('nampicuan')">Nampicuan</button>
-                <button class="map-label pantabangan" onclick="openMunicipality('pantabangan')">Pantabangan</button>
-                <button class="map-label penaranda" onclick="openMunicipality('penaranda')">Peñaranda</button>
-                <button class="map-label quezon" onclick="openMunicipality('quezon')">Quezon</button>
-                <button class="map-label rizal" onclick="openMunicipality('rizal')">Rizal</button>
-                <button class="map-label nesanantonio" onclick="openMunicipality('nesan_antonio')">San Antonio</button>
-                <button class="map-label nesanisidro" onclick="openMunicipality('san_isidro')">San Isidro</button>
-                <button class="map-label sanleonardo" onclick="openMunicipality('san_leonardo')">San Leonardo</button>
-                <button class="map-label santarosa" onclick="openMunicipality('santa_rosa')">Santa Rosa</button>
-                <button class="map-label santodomingo" onclick="openMunicipality('santo_domingo')">Santo Domingo</button>
-                <button class="map-label talavera" onclick="openMunicipality('talavera')">Talavera</button>
-                <button class="map-label talugtug" onclick="openMunicipality('talugtug')">Talugtug</button>
-                <button class="map-label zaragoza" onclick="openMunicipality('zaragoza')">Zaragoza</button>
-              </div>
+                  <button class="map-label aliaga" onclick="openMunicipality('aliaga')">Aliaga</button>
+                  <button class="map-label bongabon" onclick="openMunicipality('bongabon')">Bongabon</button>
+                  <button class="map-label cabiao" onclick="openMunicipality('cabiao')">Cabiao</button>
+                  <button class="map-label carranglan" onclick="openMunicipality('carranglan')">Carranglan</button>
+                  <button class="map-label cuyapo" onclick="openMunicipality('cuyapo')">Cuyapo</button>
+                  <button class="map-label gabaldon" onclick="openMunicipality('gabaldon')">Gabaldon</button>
+                  <button class="map-label gmn" onclick="openMunicipality('gmn')">Gen. Natividad</button>
+                  <button class="map-label gtinio" onclick="openMunicipality('gtinio')">Gen. Tinio</button>
+                  <button class="map-label guimba" onclick="openMunicipality('guimba')">Guimba</button>
+                  <button class="map-label jaen" onclick="openMunicipality('jaen')">Jaen</button>
+                  <button class="map-label laur" onclick="openMunicipality('laur')">Laur</button>
+                  <button class="map-label licab" onclick="openMunicipality('licab')">Licab</button>
+                  <button class="map-label llanera" onclick="openMunicipality('llanera')">Llanera</button>
+                  <button class="map-label lupao" onclick="openMunicipality('lupao')">Lupao</button>
+                  <button class="map-label nampicuan" onclick="openMunicipality('nampicuan')">Nampicuan</button>
+                  <button class="map-label pantabangan" onclick="openMunicipality('pantabangan')">Pantabangan</button>
+                  <button class="map-label penaranda" onclick="openMunicipality('penaranda')">Peñaranda</button>
+                  <button class="map-label quezon" onclick="openMunicipality('quezon')">Quezon</button>
+                  <button class="map-label rizal" onclick="openMunicipality('rizal')">Rizal</button>
+                  <button class="map-label nesanantonio" onclick="openMunicipality('nesan_antonio')">San Antonio</button>
+                  <button class="map-label nesanisidro" onclick="openMunicipality('san_isidro')">San Isidro</button>
+                  <button class="map-label sanleonardo" onclick="openMunicipality('san_leonardo')">San Leonardo</button>
+                  <button class="map-label santarosa" onclick="openMunicipality('santa_rosa')">Santa Rosa</button>
+                  <button class="map-label santodomingo" onclick="openMunicipality('santo_domingo')">Santo Domingo</button>
+                  <button class="map-label talavera" onclick="openMunicipality('talavera')">Talavera</button>
+                  <button class="map-label talugtug" onclick="openMunicipality('talugtug')">Talugtug</button>
+                  <button class="map-label zaragoza" onclick="openMunicipality('zaragoza')">Zaragoza</button>
+                </div>
 
-              <!-- AURORA LAYER -->
-              <div class="municipality-layer" id="auroraLayer">
-                <button class="map-label baler" onclick="openMunicipality('baler')">Baler</button>
-                <button class="map-label casiguran" onclick="openMunicipality('casiguran')">Casiguran</button>
-                <button class="map-label dilasag" onclick="openMunicipality('dilasag')">Dilasag</button>
-                <button class="map-label dinalungan" onclick="openMunicipality('dinalungan')">Dinalungan</button>
-                <button class="map-label dingalan" onclick="openMunicipality('dingalan')">Dingalan</button>
-                <button class="map-label mariaaurora" onclick="openMunicipality('maria_aurora')">Maria Aurora</button>
-                <button class="map-label sanluis" onclick="openMunicipality('san_luis')">San Luis</button>
-              </div>
+                <!-- AURORA LAYER -->
+                <div class="municipality-layer" id="auroraLayer">
+                  <button class="map-label baler" onclick="openMunicipality('baler')">Baler</button>
+                  <button class="map-label casiguran" onclick="openMunicipality('casiguran')">Casiguran</button>
+                  <button class="map-label dilasag" onclick="openMunicipality('dilasag')">Dilasag</button>
+                  <button class="map-label dinalungan" onclick="openMunicipality('dinalungan')">Dinalungan</button>
+                  <button class="map-label dingalan" onclick="openMunicipality('dingalan')">Dingalan</button>
+                  <button class="map-label mariaaurora" onclick="openMunicipality('maria_aurora')">Maria Aurora</button>
+                  <button class="map-label sanluis" onclick="openMunicipality('san_luis')">San Luis</button>
+                </div>
 
-              <!-- BATAAN LAYER -->
-              <div class="municipality-layer" id="bataanLayer">
-              <button class="map-label balanga" onclick="openMunicipality('balanga')">Balanga</button>
+                <!-- BATAAN LAYER -->
+                <div class="municipality-layer" id="bataanLayer">
+                <button class="map-label balanga" onclick="openMunicipality('balanga')">Balanga</button>
 
-                <button class="map-label abucay" onclick="openMunicipality('abucay')">Abucay</button>
-                <button class="map-label bagac" onclick="openMunicipality('bagac')">Bagac</button>
-                <button class="map-label dinalupihan" onclick="openMunicipality('dinalupihan')">Dinalupihan</button>
-                <button class="map-label hermosa" onclick="openMunicipality('hermosa')">Hermosa</button>
-                <button class="map-label limay" onclick="openMunicipality('limay')">Limay</button>
-                <button class="map-label mariveles" onclick="openMunicipality('mariveles')">Mariveles</button>
-                <button class="map-label morong" onclick="openMunicipality('morong')">Morong</button>
-                <button class="map-label orani" onclick="openMunicipality('orani')">Orani</button>
-                <button class="map-label orion" onclick="openMunicipality('orion')">Orion</button>
-                <button class="map-label pilar" onclick="openMunicipality('pilar')">Pilar</button>
-                <button class="map-label samal" onclick="openMunicipality('samal')">Samal</button>
-              </div>
+                  <button class="map-label abucay" onclick="openMunicipality('abucay')">Abucay</button>
+                  <button class="map-label bagac" onclick="openMunicipality('bagac')">Bagac</button>
+                  <button class="map-label dinalupihan" onclick="openMunicipality('dinalupihan')">Dinalupihan</button>
+                  <button class="map-label hermosa" onclick="openMunicipality('hermosa')">Hermosa</button>
+                  <button class="map-label limay" onclick="openMunicipality('limay')">Limay</button>
+                  <button class="map-label mariveles" onclick="openMunicipality('mariveles')">Mariveles</button>
+                  <button class="map-label morong" onclick="openMunicipality('morong')">Morong</button>
+                  <button class="map-label orani" onclick="openMunicipality('orani')">Orani</button>
+                  <button class="map-label orion" onclick="openMunicipality('orion')">Orion</button>
+                  <button class="map-label pilar" onclick="openMunicipality('pilar')">Pilar</button>
+                  <button class="map-label samal" onclick="openMunicipality('samal')">Samal</button>
+                </div>
 
-              <!-- BULACAN LAYER -->
-              <div class="municipality-layer" id="bulacanLayer">
-                <button class="map-label malolos" onclick="openMunicipality('malolos')">Malolos</button>
-                <button class="map-label meycauayan" onclick="openMunicipality('meycauayan')">Meycauayan</button>
-                <button class="map-label bulsanjose" onclick="openMunicipality('san_jose_del_monte')">San Jose del Monte</button>
+                <!-- BULACAN LAYER -->
+                <div class="municipality-layer" id="bulacanLayer">
+                  <button class="map-label malolos" onclick="openMunicipality('malolos')">Malolos</button>
+                  <button class="map-label meycauayan" onclick="openMunicipality('meycauayan')">Meycauayan</button>
+                  <button class="map-label bulsanjose" onclick="openMunicipality('san_jose_del_monte')">San Jose del Monte</button>
 
-                <button class="map-label angat" onclick="openMunicipality('angat')">Angat</button>
-                <button class="map-label balagtas" onclick="openMunicipality('balagtas')">Balagtas</button>
-                <button class="map-label baliuag" onclick="openMunicipality('baliuag')">Baliuag</button>
-                <button class="map-label bocaue" onclick="openMunicipality('bocaue')">Bocaue</button>
-                <button class="map-label bulakan" onclick="openMunicipality('bulakan')">Bulakan</button>
-                <button class="map-label bustos" onclick="openMunicipality('bustos')">Bustos</button>
-                <button class="map-label calumpit" onclick="openMunicipality('calumpit')">Calumpit</button>
-                <button class="map-label drm" onclick="openMunicipality('dona_remedios_trinidad')">Doña Remedios Trinidad</button>
-                <button class="map-label guiguinto" onclick="openMunicipality('guiguinto')">Guiguinto</button>
-                <button class="map-label hagonoy" onclick="openMunicipality('hagonoy')">Hagonoy</button>
-                <button class="map-label marilao" onclick="openMunicipality('marilao')">Marilao</button>
-                <button class="map-label norzagaray" onclick="openMunicipality('norzagaray')">Norzagaray</button>
-                <button class="map-label obando" onclick="openMunicipality('obando')">Obando</button>
-                <button class="map-label pandi" onclick="openMunicipality('pandi')">Pandi</button>
-                <button class="map-label paombong" onclick="openMunicipality('paombong')">Paombong</button>
-                <button class="map-label plaridel" onclick="openMunicipality('plaridel')">Plaridel</button>
-                <button class="map-label pulilan" onclick="openMunicipality('pulilan')">Pulilan</button>
-                <button class="map-label sanildefonso" onclick="openMunicipality('san_ildefonso')">San Ildefonso</button>
-                <button class="map-label sanmiguel" onclick="openMunicipality('san_miguel')">San Miguel</button>
-                <button class="map-label sanrafael" onclick="openMunicipality('san_rafael')">San Rafael</button>
-                <button class="map-label santamaria" onclick="openMunicipality('santa_maria')">Santa Maria</button>
-                <button class="map-label santarita" onclick="openMunicipality('santa_rita')">Santa Rita</button>
-              </div>
+                  <button class="map-label angat" onclick="openMunicipality('angat')">Angat</button>
+                  <button class="map-label balagtas" onclick="openMunicipality('balagtas')">Balagtas</button>
+                  <button class="map-label baliuag" onclick="openMunicipality('baliuag')">Baliuag</button>
+                  <button class="map-label bocaue" onclick="openMunicipality('bocaue')">Bocaue</button>
+                  <button class="map-label bulakan" onclick="openMunicipality('bulakan')">Bulakan</button>
+                  <button class="map-label bustos" onclick="openMunicipality('bustos')">Bustos</button>
+                  <button class="map-label calumpit" onclick="openMunicipality('calumpit')">Calumpit</button>
+                  <button class="map-label drm" onclick="openMunicipality('dona_remedios_trinidad')">Doña Remedios Trinidad</button>
+                  <button class="map-label guiguinto" onclick="openMunicipality('guiguinto')">Guiguinto</button>
+                  <button class="map-label hagonoy" onclick="openMunicipality('hagonoy')">Hagonoy</button>
+                  <button class="map-label marilao" onclick="openMunicipality('marilao')">Marilao</button>
+                  <button class="map-label norzagaray" onclick="openMunicipality('norzagaray')">Norzagaray</button>
+                  <button class="map-label obando" onclick="openMunicipality('obando')">Obando</button>
+                  <button class="map-label pandi" onclick="openMunicipality('pandi')">Pandi</button>
+                  <button class="map-label paombong" onclick="openMunicipality('paombong')">Paombong</button>
+                  <button class="map-label plaridel" onclick="openMunicipality('plaridel')">Plaridel</button>
+                  <button class="map-label pulilan" onclick="openMunicipality('pulilan')">Pulilan</button>
+                  <button class="map-label sanildefonso" onclick="openMunicipality('san_ildefonso')">San Ildefonso</button>
+                  <button class="map-label sanmiguel" onclick="openMunicipality('san_miguel')">San Miguel</button>
+                  <button class="map-label sanrafael" onclick="openMunicipality('san_rafael')">San Rafael</button>
+                  <button class="map-label santamaria" onclick="openMunicipality('santa_maria')">Santa Maria</button>
+                  <button class="map-label santarita" onclick="openMunicipality('santa_rita')">Santa Rita</button>
+                </div>
 
-              <!-- PAMPANGA LAYER -->
-              <div class="municipality-layer" id="pampangaLayer">
-                <button class="map-label angeles" onclick="openMunicipality('angeles')">Angeles</button>
-                <button class="map-label sanfernando" onclick="openMunicipality('san_fernando')">San Fernando</button>
-                <button class="map-label mabalacat" onclick="openMunicipality('mabalacat')">Mabalacat</button>
+                <!-- PAMPANGA LAYER -->
+                <div class="municipality-layer" id="pampangaLayer">
+                  <button class="map-label angeles" onclick="openMunicipality('angeles')">Angeles</button>
+                  <button class="map-label sanfernando" onclick="openMunicipality('san_fernando')">San Fernando</button>
+                  <button class="map-label mabalacat" onclick="openMunicipality('mabalacat')">Mabalacat</button>
 
-                <button class="map-label apalit" onclick="openMunicipality('apalit')">Apalit</button>
-                <button class="map-label arayat" onclick="openMunicipality('arayat')">Arayat</button>
-                <button class="map-label bacolor" onclick="openMunicipality('bacolor')">Bacolor</button>
-                <button class="map-label candaba" onclick="openMunicipality('candaba')">Candaba</button>
-                <button class="map-label floridablanca" onclick="openMunicipality('floridablanca')">Floridablanca</button>
-                <button class="map-label guagua" onclick="openMunicipality('guagua')">Guagua</button>
-                <button class="map-label lubao" onclick="openMunicipality('lubao')">Lubao</button>
-                <button class="map-label macabebe" onclick="openMunicipality('macabebe')">Macabebe</button>
-                <button class="map-label magalang" onclick="openMunicipality('magalang')">Magalang</button>
-                <button class="map-label masantol" onclick="openMunicipality('masantol')">Masantol</button>
-                <button class="map-label mexico" onclick="openMunicipality('mexico')">Mexico</button>
-                <button class="map-label minalin" onclick="openMunicipality('minalin')">Minalin</button>
-                <button class="map-label porac" onclick="openMunicipality('porac')">Porac</button>
-                <button class="map-label sasmuan" onclick="openMunicipality('sasmuan')">Sasmuan</button>
-                <button class="map-label santana" onclick="openMunicipality('santa_ana')">Santa Ana</button>
-                <button class="map-label santotomas" onclick="openMunicipality('santo_tomas')">Santo Tomas</button>
-              </div>
+                  <button class="map-label apalit" onclick="openMunicipality('apalit')">Apalit</button>
+                  <button class="map-label arayat" onclick="openMunicipality('arayat')">Arayat</button>
+                  <button class="map-label bacolor" onclick="openMunicipality('bacolor')">Bacolor</button>
+                  <button class="map-label candaba" onclick="openMunicipality('candaba')">Candaba</button>
+                  <button class="map-label floridablanca" onclick="openMunicipality('floridablanca')">Floridablanca</button>
+                  <button class="map-label guagua" onclick="openMunicipality('guagua')">Guagua</button>
+                  <button class="map-label lubao" onclick="openMunicipality('lubao')">Lubao</button>
+                  <button class="map-label macabebe" onclick="openMunicipality('macabebe')">Macabebe</button>
+                  <button class="map-label magalang" onclick="openMunicipality('magalang')">Magalang</button>
+                  <button class="map-label masantol" onclick="openMunicipality('masantol')">Masantol</button>
+                  <button class="map-label mexico" onclick="openMunicipality('mexico')">Mexico</button>
+                  <button class="map-label minalin" onclick="openMunicipality('minalin')">Minalin</button>
+                  <button class="map-label porac" onclick="openMunicipality('porac')">Porac</button>
+                  <button class="map-label sasmuan" onclick="openMunicipality('sasmuan')">Sasmuan</button>
+                  <button class="map-label santana" onclick="openMunicipality('santa_ana')">Santa Ana</button>
+                  <button class="map-label santotomas" onclick="openMunicipality('santo_tomas')">Santo Tomas</button>
+                </div>
 
-              <!-- TARLAC LAYER -->
-              <div class="municipality-layer" id="tarlacLayer">
-                <button class="map-label tarlaccity" onclick="openMunicipality('tarlac_city')">Tarlac City</button>
+                <!-- TARLAC LAYER -->
+                <div class="municipality-layer" id="tarlacLayer">
+                  <button class="map-label tarlaccity" onclick="openMunicipality('tarlac_city')">Tarlac City</button>
 
-                <button class="map-label anao" onclick="openMunicipality('anao')">Anao</button>
-                <button class="map-label bamban" onclick="openMunicipality('bamban')">Bamban</button>
-                <button class="map-label camiling" onclick="openMunicipality('camiling')">Camiling</button>
-                <button class="map-label capas" onclick="openMunicipality('capas')">Capas</button>
-                <button class="map-label concepcion" onclick="openMunicipality('concepcion')">Concepcion</button>
-                <button class="map-label gerona" onclick="openMunicipality('gerona')">Gerona</button>
-                <button class="map-label lapaz" onclick="openMunicipality('la_paz')">La Paz</button>
-                <button class="map-label mayantoc" onclick="openMunicipality('mayantoc')">Mayantoc</button>
-                <button class="map-label moncada" onclick="openMunicipality('moncada')">Moncada</button>
-                <button class="map-label paniqui" onclick="openMunicipality('paniqui')">Paniqui</button>
-                <button class="map-label pura" onclick="openMunicipality('pura')">Pura</button>
-                <button class="map-label ramos" onclick="openMunicipality('ramos')">Ramos</button>
-                <button class="map-label sanclemente" onclick="openMunicipality('san_clemente')">San Clemente</button>
-                <button class="map-label tarsanjose" onclick="openMunicipality('tarsan_jose')">San Jose</button>
-                <button class="map-label sanmanuel" onclick="openMunicipality('san_manuel')">San Manuel</button>
-                <button class="map-label santaignacia" onclick="openMunicipality('santa_ignacia')">Santa Ignacia</button>
-                <button class="map-label victoria" onclick="openMunicipality('victoria')">Victoria</button>
-              </div>
+                  <button class="map-label anao" onclick="openMunicipality('anao')">Anao</button>
+                  <button class="map-label bamban" onclick="openMunicipality('bamban')">Bamban</button>
+                  <button class="map-label camiling" onclick="openMunicipality('camiling')">Camiling</button>
+                  <button class="map-label capas" onclick="openMunicipality('capas')">Capas</button>
+                  <button class="map-label concepcion" onclick="openMunicipality('concepcion')">Concepcion</button>
+                  <button class="map-label gerona" onclick="openMunicipality('gerona')">Gerona</button>
+                  <button class="map-label lapaz" onclick="openMunicipality('la_paz')">La Paz</button>
+                  <button class="map-label mayantoc" onclick="openMunicipality('mayantoc')">Mayantoc</button>
+                  <button class="map-label moncada" onclick="openMunicipality('moncada')">Moncada</button>
+                  <button class="map-label paniqui" onclick="openMunicipality('paniqui')">Paniqui</button>
+                  <button class="map-label pura" onclick="openMunicipality('pura')">Pura</button>
+                  <button class="map-label ramos" onclick="openMunicipality('ramos')">Ramos</button>
+                  <button class="map-label sanclemente" onclick="openMunicipality('san_clemente')">San Clemente</button>
+                  <button class="map-label tarsanjose" onclick="openMunicipality('tarsan_jose')">San Jose</button>
+                  <button class="map-label sanmanuel" onclick="openMunicipality('san_manuel')">San Manuel</button>
+                  <button class="map-label santaignacia" onclick="openMunicipality('santa_ignacia')">Santa Ignacia</button>
+                  <button class="map-label victoria" onclick="openMunicipality('victoria')">Victoria</button>
+                </div>
 
-              <!-- ZAMBALES LAYER -->
-              <div class="municipality-layer" id="zambalesLayer">
-                <button class="map-label olongapo" onclick="openMunicipality('olongapo')">Olongapo</button>
+                <!-- ZAMBALES LAYER -->
+                <div class="municipality-layer" id="zambalesLayer">
+                  <button class="map-label olongapo" onclick="openMunicipality('olongapo')">Olongapo</button>
 
-                <button class="map-label botolan" onclick="openMunicipality('botolan')">Botolan</button>
-                <button class="map-label cabangan" onclick="openMunicipality('cabangan')">Cabangan</button>
-                <button class="map-label candelaria" onclick="openMunicipality('candelaria')">Candelaria</button>
-                <button class="map-label castillejos" onclick="openMunicipality('castillejos')">Castillejos</button>
-                <button class="map-label iba" onclick="openMunicipality('iba')">Iba</button>
-                <button class="map-label masinloc" onclick="openMunicipality('masinloc')">Masinloc</button>
-                <button class="map-label palauig" onclick="openMunicipality('palauig')">Palauig</button>
-                <button class="map-label zamsanantonio" onclick="openMunicipality('zamsan_antonio')">San Antonio</button>
-                <button class="map-label sanfelipe" onclick="openMunicipality('san_felipe')">San Felipe</button>
-                <button class="map-label sanmarcelino" onclick="openMunicipality('san_marcelino')">San Marcelino</button>
-                <button class="map-label santacruz" onclick="openMunicipality('santa_cruz')">Santa Cruz</button>
-                <button class="map-label subic" onclick="openMunicipality('subic')">Subic</button>
-              </div>
+                  <button class="map-label botolan" onclick="openMunicipality('botolan')">Botolan</button>
+                  <button class="map-label cabangan" onclick="openMunicipality('cabangan')">Cabangan</button>
+                  <button class="map-label candelaria" onclick="openMunicipality('candelaria')">Candelaria</button>
+                  <button class="map-label castillejos" onclick="openMunicipality('castillejos')">Castillejos</button>
+                  <button class="map-label iba" onclick="openMunicipality('iba')">Iba</button>
+                  <button class="map-label masinloc" onclick="openMunicipality('masinloc')">Masinloc</button>
+                  <button class="map-label palauig" onclick="openMunicipality('palauig')">Palauig</button>
+                  <button class="map-label zamsanantonio" onclick="openMunicipality('zamsan_antonio')">San Antonio</button>
+                  <button class="map-label sanfelipe" onclick="openMunicipality('san_felipe')">San Felipe</button>
+                  <button class="map-label sanmarcelino" onclick="openMunicipality('san_marcelino')">San Marcelino</button>
+                  <button class="map-label santacruz" onclick="openMunicipality('santa_cruz')">Santa Cruz</button>
+                  <button class="map-label subic" onclick="openMunicipality('subic')">Subic</button>
+                </div>
               </div>
             </div>
           </div>
@@ -1842,10 +1817,7 @@
                 <h3 id="section5Title">Pangunahing Hanapbuhay</h3>
                 <p id="localProducts"></p>
               </div>
-              </div>
             </div>
-          </div>
-            
           </div>
         </div>
       </div>
@@ -3639,6 +3611,37 @@
       // DRAG END
       window.addEventListener("mouseup", () => {
         isDragging = false;
+      });
+
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let isTouchDragging = false;
+
+      container.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) {
+          isTouchDragging = true;
+          touchStartX = e.touches[0].clientX - posX;
+          touchStartY = e.touches[0].clientY - posY;
+        }
+      }, { passive: false });
+
+      container.addEventListener("touchmove", (e) => {
+        if (!isTouchDragging || e.touches.length !== 1) return;
+
+        e.preventDefault();
+
+        posX = e.touches[0].clientX - touchStartX;
+        posY = e.touches[0].clientY - touchStartY;
+
+        updateTransform();
+      }, { passive: false });
+
+      container.addEventListener("touchend", () => {
+        isTouchDragging = false;
+      });
+
+      container.addEventListener("touchcancel", () => {
+        isTouchDragging = false;
       });
 
       function zoomIn() {
