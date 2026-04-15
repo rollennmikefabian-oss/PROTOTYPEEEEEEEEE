@@ -939,6 +939,7 @@
         margin: 0 auto;
         transform-origin: center center;
         transition: transform 0.1s ease;
+        z-index: 1;
       }
 
       .municipality-layer {
@@ -958,15 +959,16 @@
         display: flex;
         flex-direction: column;
         gap: 6px;
-        z-index: 100;
+        z-index: 1000;
       }
 
       .zoom-controls button {
-        padding: 6px 10px;
-        border: none;
-        border-radius: 6px;
         background: rgba(0,0,0,0.6);
         color: white;
+        border: none;
+        padding: 6px 10px;
+        margin: 3px;
+        border-radius: 6px;
         cursor: pointer;
       }
 
@@ -1461,7 +1463,7 @@
         .map-container {
           width: 100%;
           min-width: 0;
-          margin-top: 300px;
+          margin-top: 350px;
           margin-left: auto;
           margin-right: auto;
         }
@@ -1744,6 +1746,13 @@
                   <button class="map-label subic" onclick="openMunicipality('subic')">Subic</button>
                 </div>
               </div>
+
+              <div class="zoom-controls">
+                <button onclick="zoomIn()">+</button>
+                <button onclick="zoomOut()">-</button>
+                <button onclick="resetZoom()">Reset</button>
+              </div>
+
             </div>
           </div>
 
@@ -3293,6 +3302,36 @@
       santa_cruz: "logo/santa_cruz.png",
       subic: "logo/subic.jpg"
     };
+
+    let scale = 1;
+    let posX = 0;
+    let posY = 0;
+
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    let startDistance = 0;
+    let startScale = 1;
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isTouchDragging = false;
+
+    const zoomStage = document.getElementById("zoomStage");
+    const container = document.getElementById("provinceMapContainer");
+
+    function updateTransform() {
+      zoomStage.style.transform =
+        `translate(${posX}px, ${posY}px) scale(${scale})`;
+    }
+
+    function getTouchDistance(touches) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
     function getPlaceLogo(type, key) {
       if (type === "province") {
         return provinceLogos[key] || "";
@@ -3531,19 +3570,6 @@
       bindProvinceHover(".tarlac, .tarlac-label, .tarlac-logo", "tarlac");
       bindProvinceHover(".zambales, .zambales-label, .zambales-logo", "zambales");
 
-      let scale = 1;
-      let posX = 0;
-      let posY = 0;
-      let isDragging = false;
-      let startX, startY;
-
-      const zoomStage = document.getElementById("zoomStage");
-      const container = document.getElementById("provinceMapContainer");
-
-      function updateTransform() {
-        zoomStage.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
-      }
-
       // SCROLL ZOOM
       container.addEventListener("wheel", (e) => {
         e.preventDefault();
@@ -3582,37 +3608,6 @@
         isDragging = false;
       });
 
-      let touchStartX = 0;
-      let touchStartY = 0;
-      let isTouchDragging = false;
-
-      container.addEventListener("touchstart", (e) => {
-        if (e.touches.length === 1) {
-          isTouchDragging = true;
-          touchStartX = e.touches[0].clientX - posX;
-          touchStartY = e.touches[0].clientY - posY;
-        }
-      }, { passive: false });
-
-      container.addEventListener("touchmove", (e) => {
-        if (!isTouchDragging || e.touches.length !== 1) return;
-
-        e.preventDefault();
-
-        posX = e.touches[0].clientX - touchStartX;
-        posY = e.touches[0].clientY - touchStartY;
-
-        updateTransform();
-      }, { passive: false });
-
-      container.addEventListener("touchend", () => {
-        isTouchDragging = false;
-      });
-
-      container.addEventListener("touchcancel", () => {
-        isTouchDragging = false;
-      });
-
       function zoomIn() {
         scale = Math.min(scale + 0.2, 4);
         updateTransform();
@@ -3637,6 +3632,57 @@
       function closeGuide() {
         document.getElementById("guideModal").classList.remove("show");
       }
+
+      container.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) {
+          isTouchDragging = true;
+          touchStartX = e.touches[0].clientX - posX;
+          touchStartY = e.touches[0].clientY - posY;
+        }
+
+        if (e.touches.length === 2) {
+          isTouchDragging = false;
+          startDistance = getTouchDistance(e.touches);
+          startScale = scale;
+        }
+      }, { passive: false });
+
+      container.addEventListener("touchmove", (e) => {
+
+        // 🔥 1 FINGER = DRAG
+        if (e.touches.length === 1 && isTouchDragging) {
+          e.preventDefault();
+
+          posX = e.touches[0].clientX - touchStartX;
+          posY = e.touches[0].clientY - touchStartY;
+
+          updateTransform();
+        }
+
+        // 🔥 2 FINGERS = PINCH ZOOM
+        if (e.touches.length === 2) {
+          e.preventDefault();
+
+          const currentDistance = getTouchDistance(e.touches);
+          const zoomFactor = currentDistance / startDistance;
+
+          scale = startScale * zoomFactor;
+
+          // limit zoom
+          scale = Math.max(1, Math.min(scale, 4));
+
+          updateTransform();
+        }
+
+      }, { passive: false });
+
+      container.addEventListener("touchend", () => {
+        isTouchDragging = false;
+      });
+
+      container.addEventListener("touchcancel", () => {
+        isTouchDragging = false;
+      });
 
 </script>
 
