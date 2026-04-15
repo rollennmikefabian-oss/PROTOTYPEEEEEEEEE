@@ -917,7 +917,7 @@
       }
 
       .tarlac-overlay {
-        top: 9.6%;
+        top: 9.1%;
         left: 9%;
         width: 36%;
       }
@@ -1426,76 +1426,44 @@
 
       @media (max-width: 768px) {
         body {
-          overflow-x: hidden;
-          overflow-y: auto;
+          overflow: auto;
         }
 
         .container {
           flex-direction: column;
           align-items: center;
           justify-content: flex-start;
-          width: 100%;
           height: auto;
-          padding: 12px;
+          width: 100%;
         }
 
         .left-panel {
-          width: min(94vw, 620px);
-          max-width: 94vw;
-          margin: 95px auto 18px auto;
-          font-size: clamp(14px, 3.8vw, 18px);
-          line-height: 1.6;
+          width: min(92%, 620px);
+          max-width: 650px;
+          margin: 140px auto 20px auto;
         }
 
         .main {
           width: 100%;
           min-height: auto;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          overflow: visible;
         }
 
         .logos {
-          position: static;
-          top: auto;
-          left: auto;
-          transform: none;
-          width: 100%;
-          margin: 6px auto 14px auto;
-          gap: 10px;
-          justify-content: center;
-          align-items: center;
+          top: 25px;
+          gap: 8px;
           flex-wrap: wrap;
-          overflow: visible;
-        }
-
-        .logos img {
-          width: clamp(58px, 18vw, 82px);
-          height: auto;
-          display: block;
-        }
-
-        .map-container {
-          width: min(94vw, 390px);
-          min-width: 0;
-          margin: 8px auto 0 auto;
-          margin-left: auto;
-        }
-
-        .map {
-          width: 100%;
-          height: auto;
-          display: block;
-        }
-
-        .pin img {
-          width: clamp(14px, 4vw, 22px);
         }
 
         .label {
-          font-size: clamp(9px, 3vw, 16px);
-          letter-spacing: 0.5px;
+          font-size: clamp(11px, 3vw, 14px);
+        }
+
+        .map-container {
+          width: 100%;
+          min-width: 0;
+          margin-top: 300px;
+          margin-left: auto;
+          margin-right: auto;
         }
 
         .modal-box {
@@ -1529,6 +1497,7 @@
           width: 60px;
           height: 60px;
         }
+
       }
     
   </style>
